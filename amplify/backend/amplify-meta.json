@@ -1,0 +1,55 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-mynexttestapp-dev-94bc2-authRole",
+      "UnauthRoleArn": "arn:aws:iam::493765100932:role/amplify-mynexttestapp-dev-94bc2-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::493765100932:role/amplify-mynexttestapp-dev-94bc2-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-mynexttestapp-dev-94bc2-deployment",
+      "UnauthRoleName": "amplify-mynexttestapp-dev-94bc2-unauthRole",
+      "StackName": "amplify-mynexttestapp-dev-94bc2",
+      "StackId": "arn:aws:cloudformation:us-east-1:493765100932:stack/amplify-mynexttestapp-dev-94bc2/f16eb9a0-f419-11ef-af9b-12b93748d3fd",
+      "AmplifyAppId": "dkeh3fiskigu3"
+    }
+  },
+  "auth": {
+    "mynexttestapp45533c58": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "output": {
+        "UserPoolId": "us-east-1_VZRRPj9E2",
+        "AppClientIDWeb": "22khhdrq5iu8ivo7abn4uo40jl",
+        "AppClientID": "4k58mtfhq611ja995qcur8sf3f",
+        "IdentityPoolId": "us-east-1:cd4ab930-bac5-4269-b9a9-39500d3d9d70",
+        "UserPoolArn": "arn:aws:cognito-idp:us-east-1:493765100932:userpool/us-east-1_VZRRPj9E2",
+        "IdentityPoolName": "mynexttestapp45533c58_identitypool_45533c58__dev",
+        "UserPoolName": "mynexttestapp45533c58_userpool_45533c58"
+      },
+      "lastPushTimeStamp": "2025-03-03T07:12:33.439Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-mynexttestapp-dev-94bc2-deployment/amplify-cfn-templates/auth/mynexttestapp45533c58-cloudformation-template.json",
+        "logicalId": "authmynexttestapp45533c58"
+      }
+    }
+  }
+}
