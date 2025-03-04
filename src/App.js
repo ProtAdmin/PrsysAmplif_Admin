@@ -1,13 +1,10 @@
 import awsExports from "./aws-exports";
 import { Amplify } from "aws-amplify";
 import { getCurrentUser, signOut } from "aws-amplify/auth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/router";
 
 Amplify.configure({ ...awsExports, ssr: true });
-
-const AdminDashboard = () => <h2>管理者画面</h2>;
-const DevDashboard = () => <h2>開発者画面</h2>;
-const UserDashboard = () => <h2>一般ユーザー画面</h2>;
 
 // ✅ Cognito に手動リダイレクトする関数
 async function manualRedirectToCognito() {
@@ -40,8 +37,9 @@ export default function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);  // ✅ 追加：リダイレクト中フラグ
+  const router = useRouter();
 
-  async function fetchUserInfo() {
+  const fetchUserInfo = useCallback(async () => {
     try {
       console.log("🔍 Fetching user info...");
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -83,6 +81,11 @@ export default function App() {
         username: payload["cognito:username"],
         groups: groups,
       });
+
+      if (groups.includes("Proto-Admin-Group")) {
+        router.push("/admin"); // ✅ Next.jsの遷移を使用
+      }
+
     } catch (error) {
       console.error("❌ Error fetching user:", error);
       setRedirecting(true);
@@ -90,37 +93,17 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [router]);
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
-
-  function renderDashboard() {
-    console.log("🟡 Checking user groups for dashboard rendering:", userInfo?.groups);
-    
-    if (!userInfo) {
-      console.log("🚫 userInfo is null");
-      return null; // ✅ 変更：「アクセス権がありません」を表示しない
-    }
-
-    if (userInfo.groups.includes("Proto-Admin-Group")) {
-      return <AdminDashboard />;
-    } else if (userInfo.groups.includes("Proto-Dev-Group")) {
-      return <DevDashboard />;
-    } else if (userInfo.groups.includes("Proto-User-Group")) {
-      return <UserDashboard />;
-    } else {
-      console.log("🚫 No matching groups found:", userInfo.groups);
-      return null;
-    }
-  }
+  }, [fetchUserInfo]);
 
   async function handleSignOut() {
     try {
       await signOut();
       console.log("✅ User signed out successfully.");
-      window.location.href = "/";
+      router.push("/");
     } catch (error) {
       console.error("❌ Sign out failed:", error);
     }
@@ -131,9 +114,7 @@ export default function App() {
       {loading || redirecting ? (  // ✅ 変更：リダイレクト中は何も表示しない
         <h2>🔄 読み込み中...</h2>
       ) : userInfo ? (
-        <>
-          <h1>ようこそ, {userInfo.username} さん</h1>
-          {renderDashboard()}
+        <>          
           <button
             onClick={handleSignOut}
             style={{
