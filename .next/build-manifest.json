@@ -5,8 +5,8 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/UFCkCIWgcTt1UF3whWMm2/_buildManifest.js",
-    "static/UFCkCIWgcTt1UF3whWMm2/_ssgManifest.js"
+    "static/JsIUbY9hDNHK45tPq0AJk/_buildManifest.js",
+    "static/JsIUbY9hDNHK45tPq0AJk/_ssgManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -41,7 +41,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/admin-ecafc4b22c72b590.js"
+      "static/chunks/pages/admin-ff5e408da16bb6c7.js"
     ],
     "/attendance": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -49,7 +49,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/attendance-ad8b45f792438377.js"
+      "static/chunks/pages/attendance-cc626bd95f0e3a34.js"
     ],
     "/education": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -57,7 +57,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/education-6c1d7a4e3ea8988b.js"
+      "static/chunks/pages/education-7e4b473a4aab254f.js"
     ],
     "/employee": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -65,7 +65,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/employee-0821f3781535ce0e.js"
+      "static/chunks/pages/employee-c0abdd6c7a57212b.js"
     ],
     "/employees": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -74,7 +74,7 @@
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
       "static/css/1c5ae555a2869bfb.css",
-      "static/chunks/pages/employees-c97e4af62714b8ee.js"
+      "static/chunks/pages/employees-17c6479d73322ad2.js"
     ],
     "/employees/edit": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -82,7 +82,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/employees/edit-186ec24ff2a1aba1.js"
+      "static/chunks/pages/employees/edit-f477c40c0c3c7f97.js"
     ],
     "/projects": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -90,7 +90,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/projects-34d9e0def40d8a2c.js"
+      "static/chunks/pages/projects-52d62ff53a8a43fb.js"
     ]
   },
   "ampFirstPages": []
