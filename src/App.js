@@ -6,16 +6,30 @@ import { useRouter } from "next/router";
 
 Amplify.configure({ ...awsExports, ssr: true });
 
-// ✅ Cognito に手動リダイレクトする関数
-async function manualRedirectToCognito() {
+// ✅ Cognito に手動リダイレクトする関数（接続元を考慮）
+function manualRedirectToCognito() {
+  const cloudFrontDomain = window.location.origin;
+  console.log("🌍 Detected CloudFront Domain:", cloudFrontDomain);
+
+  const allowedDomains = [
+    "https://d1xj20n18wdq9y.cloudfront.net",
+    "https://d2f1z4tvqap875.cloudfront.net"
+  ];
+
+  if (!allowedDomains.includes(cloudFrontDomain)) {
+    console.error(`🚫 Unauthorized access from ${cloudFrontDomain}. Redirecting to error page.`);
+    window.location.href = "/unauthorized";
+    return;
+  }
+
   const cognitoLoginUrl =
     "https://ap-northeast-1h2ira36fy.auth.ap-northeast-1.amazoncognito.com/login"
     + "?client_id=128mcrh4ftsd1onp7q9vomaolp"
     + "&response_type=token"
     + "&scope=openid+profile+email"
-    + "&redirect_uri=https://d1xj20n18wdq9y.cloudfront.net";
+    + `&redirect_uri=${encodeURIComponent(cloudFrontDomain)}`;
 
-  console.log("🔄 Redirecting manually to Cognito:", cognitoLoginUrl);
+  console.log("🔄 Redirecting to Cognito:", cognitoLoginUrl);
   window.location.href = cognitoLoginUrl;
 }
 
@@ -36,7 +50,7 @@ function parseIdToken(idToken) {
 export default function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);  // ✅ 追加：リダイレクト中フラグ
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
 
   const fetchUserInfo = useCallback(async () => {
@@ -56,7 +70,7 @@ export default function App() {
           console.log("✅ ID Token from getCurrentUser():", idTokenValue);
         } catch {
           console.warn("⚠️ No authenticated user found. Redirecting to Cognito...");
-          setRedirecting(true); // ✅ 追加: リダイレクト中フラグを設定
+          setRedirecting(true);
           manualRedirectToCognito();
           return;
         }
@@ -82,10 +96,25 @@ export default function App() {
         groups: groups,
       });
 
-      if (groups.includes("Proto-Admin-Group")) {
-        router.push("/admin"); // ✅ Next.jsの遷移を使用
+      // ✅ CloudFrontごとにリダイレクト先を決定
+      const cloudFrontDomain = window.location.origin;
+      let destination = "/unauthorized"; // デフォルトでエラーページ
+
+      if (cloudFrontDomain === "https://d1xj20n18wdq9y.cloudfront.net") {
+        console.log("✅ System A is loaded");
+        if (groups.includes("Proto-Admin-Group")) {
+          destination = "/admin";
+        }
+      } else if (cloudFrontDomain === "https://d2f1z4tvqap875.cloudfront.net") {
+        console.log("✅ System B is loaded");
+        if (groups.includes("Proto-Admin-Group")) {
+          destination = "/employee";
+        } else if (groups.includes("Proto-User-Group")) {
+          destination = "/employees";
+        }
       }
 
+      router.push(destination);
     } catch (error) {
       console.error("❌ Error fetching user:", error);
       setRedirecting(true);
@@ -111,21 +140,12 @@ export default function App() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {loading || redirecting ? (  // ✅ 変更：リダイレクト中は何も表示しない
+      {loading || redirecting ? (
         <h2>🔄 読み込み中...</h2>
-      ) : userInfo ? (
-        <>          
-          <button
-            onClick={handleSignOut}
-            style={{
-              margin: "10px",
-              padding: "10px",
-              backgroundColor: "red",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-            }}
-          >
+      ) : userInfo ?(
+        <>
+          <h2>✅ ユーザー情報を確認中...</h2>
+          <button onClick={handleSignOut} style={{ margin: "10px", padding: "10px", backgroundColor: "red", color: "white", border: "none", borderRadius: "5px" }}>
             サインアウト
           </button>
         </>
