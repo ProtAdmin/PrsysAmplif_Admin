@@ -5,8 +5,8 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/J4lq11XhzfcaL3MWWV8tJ/_buildManifest.js",
-    "static/J4lq11XhzfcaL3MWWV8tJ/_ssgManifest.js"
+    "static/KOMTfJRp-H2-q2GaoYK74/_buildManifest.js",
+    "static/KOMTfJRp-H2-q2GaoYK74/_ssgManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -57,7 +57,7 @@
       "static/chunks/main-7bf1c830273cb457.js",
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
-      "static/chunks/pages/education-7e4b473a4aab254f.js"
+      "static/chunks/pages/education-9eac5813d44f2f6c.js"
     ],
     "/employee": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",
@@ -74,7 +74,7 @@
       "static/chunks/c16184b3-231099da74b7aa32.js",
       "static/chunks/269-b6af74b7bf64c104.js",
       "static/css/1c5ae555a2869bfb.css",
-      "static/chunks/pages/employees-17c6479d73322ad2.js"
+      "static/chunks/pages/employees-c374e170da12321a.js"
     ],
     "/employees/edit": [
       "static/chunks/webpack-0d0518cf5dc92fa8.js",

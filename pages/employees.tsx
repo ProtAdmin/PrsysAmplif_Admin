@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/EmployeeList.css';
-import Layout from "../components/Layout"; // ✅ Layoutを適用
+import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 
 interface Employee {
     _id?: string;
-    id: number;
-    name: string;
+    UserID: number;
+    Name: string;
     email: string;
     money: number;
-    in: number;
-    out: number;
-    mail: string;
+    IN: number;
+    OUT: number;
     status: string;
-    project: string;
-    skillsheet?: string;
+    Vender: string;
+    SkillSheet?: string;
     [key: string]: unknown;
 }
 
@@ -26,17 +25,23 @@ function EmployeeList() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
+  // AWS API Gateway のエンドポイント（Lambdaへリクエスト）
+  const API_ENDPOINT = "https://k6c1jaiusb.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL"; 
+  const TABLE_NAME = "Proto_User_Profiles"; // DynamoDBのテーブル名を指定
+
   // 🔹 社員情報を取得する関数（ID順にソート）
   const fetchEmployees = () => {
-    fetch('http://localhost:8080/api/employees')
+    fetch(`${API_ENDPOINT}?tableName=${TABLE_NAME}`)
       .then(response => response.json())
-      .then((data: Employee[]) => {
-        const sortedData = [...data].sort((a, b) => a.id - b.id);
-        setEmployees(sortedData);
-        setFilteredEmployees(sortedData);
+      .then((data) => {
+        if (data.data) {
+          const sortedData = [...data.data].sort((a, b) => a.UserID - b.UserID); // UserIDを基準に昇順ソート
+          setEmployees(sortedData);
+          setFilteredEmployees(sortedData);
+        }
       })
       .catch(error => console.error('Error fetching employees:', error));
-  };
+  };  
 
   useEffect(() => {
     fetchEmployees();
@@ -58,7 +63,7 @@ function EmployeeList() {
     }
   };
 
-  // 🔹 複数カラムフィルター
+  // 🔹 フィルター機能
   const applyFilters = (newFilters: { [key: string]: string }) => {
     setFilters(newFilters);
     let filteredData = employees;
@@ -146,26 +151,24 @@ function EmployeeList() {
               <th>単価</th>
               <th>参画開始</th>
               <th>参画終了</th>
-              <th>メール</th>
               <th>スキルシート</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {filteredEmployees.map((employee) => (
-              <tr key={employee._id || employee.id}>
-                <td>{employee.id}</td>
-                <td>{employee.name}</td>
+              <tr key={employee._id || employee.UserID}>
+                <td>{employee.UserID}</td>
+                <td>{employee.Name}</td>
                 <td>{employee.status}</td>
-                <td>{employee.project}</td>
+                <td>{employee.Vender}</td>
                 <td>{employee.money}</td>
-                <td>{employee.in}</td>
-                <td>{employee.out}</td>
-                <td>{employee.mail}</td>
+                <td>{employee.IN}</td>
+                <td>{employee.OUT}</td>
                 <td>
-                  {employee.skillsheet ? (
-                    <a href={employee.skillsheet} target="_blank" rel="noopener noreferrer">
-                      スキルシートを開く
+                  {employee.SkillSheet ? (
+                    <a href={employee.SkillSheet} target="_blank" rel="noopener noreferrer">
+                      参照
                     </a>
                   ) : (
                     'なし'
