@@ -23,7 +23,7 @@ export default function Education() {
       <div className="education-container">
         {/* カテゴリ選択 */}
         <aside className="category-sidebar">
-          <h3>カテゴリ</h3>
+          <h3> カテゴリ</h3>
           <div className="category-buttons">
             {categories.map((category) => (
               <button
@@ -36,6 +36,18 @@ export default function Education() {
             ))}
           </div>
         </aside>
+        
+        {/* 動画プレイヤー */}
+        <div className="video-display">
+            {selectedVideo ? (
+              <video controls width="100%">
+                <source src={selectedVideo} type="video/mp4" />
+                お使いのブラウザは video タグをサポートしていません。
+              </video>
+            ) : (
+              <p>動画を選択してください</p>
+            )}
+        </div>
 
         {/* メインコンテンツ */}
         <main className="main-content">
@@ -57,37 +69,28 @@ export default function Education() {
               </button>
             ))}
           </div>
-
-          {/* 動画プレイヤー */}
-          <div className="video-display">
-            {selectedVideo ? (
-              <video controls width="100%">
-                <source src={selectedVideo} type="video/mp4" />
-                お使いのブラウザは video タグをサポートしていません。
-              </video>
-            ) : (
-              <p>動画を選択してください</p>
-            )}
-          </div>
+              
+          
         </main>
       </div>
 
       {/* スタイル */}
       <style jsx>{`
         .education-container {
-          display: flex;
-          margin-left: 250px; /* Layoutのサイドバーにかぶらないように調整 */
-          padding-top: 80px; /* ヘッダーの高さを確保 */
-          height: 100vh;
+          display: grid;
+          grid-template-columns: 180px 1fr 200px; /* サイドバー・メイン・動画リストの3カラム */
+          grid-template-rows: auto;
+          gap: 10px; /* 余白を減らす */
+          padding: 20px;
+          height: 90vh;
         }
         .category-sidebar {
-          width: 220px;
           background: #f8f9fa;
           padding: 20px;
           border-radius: 8px;
           box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-          position: relative; /* ヘッダーに隠れないよう調整 */
-          margin-top: 20px;
+          text-align: center; /* テキストを中央揃え */
+          font-weight: bold; /* 太字で視認性アップ（オプション） */
         }
         .category-buttons {
           display: flex;
@@ -114,17 +117,21 @@ export default function Education() {
           color: white;
         }
         .main-content {
-          flex-grow: 1;
-          padding: 20px;
-          margin-left: 20px;
           display: flex;
           flex-direction: column;
-          align-items: center; /* 中央配置 */
-          justify-content: center;
+          align-items: center; /* 中央揃え */
+          justify-content: flex-start;
+          flex-grow: 1; /* 残りの幅を埋める */
+          gap: 5px;
+          padding: 0;
+          margin: 0;
+          width: auto; /* 固定幅を解除 */
         }
         .search-bar {
-          width: 60%;
-          margin-bottom: 20px;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 10px;
         }
         .search-bar input {
           width: 100%;
@@ -133,16 +140,16 @@ export default function Education() {
           border-radius: 6px;
         }
         .video-list {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-bottom: 20px;
-          width: 60%;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 5px;
+          align-items: start;
+          padding: 0;
+          margin: 0;
+          width: 100%; /* リストを適切に配置 */
         }
         .video-btn {
-          width: 100%;
           padding: 10px;
-          margin: 5px 0;
           background: white;
           border: 2px solid #007bff;
           color: #007bff;
@@ -150,20 +157,32 @@ export default function Education() {
           text-align: center;
           border-radius: 6px;
           transition: all 0.3s ease;
+          width: 100%;
         }
         .video-btn:hover {
           background: #007bff;
           color: white;
         }
         .video-display {
-          width: 60%;
-          padding: 20px;
-          border: 1px solid #ccc;
+          width: 100%;
+          height: auto;
+          border: 2px solid #007bff; /* 青枠を均等にする */
+          box-sizing: border-box; /* ボーダーを含めたサイズ計算 */
           background: #fff;
           display: flex;
           justify-content: center;
-          border-radius: 8px;
-          box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+          align-items: center;
+          border-radius: 12px;
+          box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
+          padding: 10px;
+          margin: 0; /* 余白の影響をなくす */
+          overflow: hidden; /* 枠線が途切れないようにする */
+        }
+        .video-display video {
+          width: 100%;
+          height: auto;
+          max-height: 100%;
+          display: block; /* 動画の余白をなくす */
         }
       `}</style>
     </Layout>
