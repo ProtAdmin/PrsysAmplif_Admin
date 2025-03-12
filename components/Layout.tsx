@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 // import "../styles/Layout.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faTasks, faUser, faCheck, faPencilAlt, faBars  ,faAngleDoubleLeft ,faAddressCard} from "@fortawesome/free-solid-svg-icons";
+import { faUsers, faUser, faPencilAlt, faBars  ,faAngleDoubleLeft ,faAddressCard} from "@fortawesome/free-solid-svg-icons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,9 +19,7 @@ export default function Layout({ children }: LayoutProps) {
   const menuItems = [
     { path: "/admin", icon: faPencilAlt, label: "HOME" },
     { path: "/employees", icon: faUsers, label: "社員一覧" },
-    { path: "/projects", icon: faTasks, label: "案件一覧" },
     { path: "/employees/edit", icon: faUser, label: "人員処理" },
-    { path: "/attendance", icon: faCheck, label: "勤怠管理" },
     { path: "/education", icon: faPencilAlt, label: "新人教育" },
     { path: "/retiree", icon: faAddressCard, label: "退職者分析" }
   ];

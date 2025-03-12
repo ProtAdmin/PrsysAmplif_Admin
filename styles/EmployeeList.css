@@ -113,3 +113,6 @@ body {
     color: #555;
   }
   
+  .styled-table td {
+    white-space: nowrap;  /* 改行させない */
+  }

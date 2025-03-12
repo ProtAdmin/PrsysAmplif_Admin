@@ -3,18 +3,35 @@ import '../styles/EmployeeList.css';
 import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 
-interface Employee {
-    _id?: string;
-    UserID: number;
+// DynamoDB のレスポンスの型
+interface DynamoDBEmployee {
+  UserID: string;
+  UserData: {
     Name: string;
-    email: string;
-    money: number;
-    IN: number;
-    OUT: number;
-    status: string;
+    SkillSheet?: string | null;
+  };
+  Project: {
+    STATUS: string;
     Vender: string;
-    SkillSheet?: string;
-    [key: string]: unknown;
+    IN: string;
+    OUT: string;
+    BillingRate: string;
+  };
+  Retiree: {
+    RetireeFLG: boolean;
+  };
+}
+
+// フロントエンドで使用する型
+interface Employee {
+  UserID: string;
+  Name: string;
+  status: string;
+  Vender: string;
+  IN: string;
+  OUT: string;
+  SkillSheet?: string;
+  [key: string]: string | undefined;  // 🔹 インデックスシグネチャを追加
 }
 
 function EmployeeList() {
@@ -25,23 +42,32 @@ function EmployeeList() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
-  // AWS API Gateway のエンドポイント（Lambdaへリクエスト）
-  const API_ENDPOINT = "https://k6c1jaiusb.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL"; 
-  const TABLE_NAME = "Proto_User_Profiles"; // DynamoDBのテーブル名を指定
+  const API_ENDPOINT = "https://k6c1jaiusb.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+  const TABLE_NAME = "Proto_User_Profiles";
 
-  // 🔹 社員情報を取得する関数（ID順にソート）
   const fetchEmployees = () => {
     fetch(`${API_ENDPOINT}?tableName=${TABLE_NAME}`)
       .then(response => response.json())
       .then((data) => {
         if (data.data) {
-          const sortedData = [...data.data].sort((a, b) => a.UserID - b.UserID); // UserIDを基準に昇順ソート
+          const formattedData = data.data.map((employee: DynamoDBEmployee) => ({
+            UserID: employee.UserID,
+            Name: employee.UserData.Name,
+            status: employee.Project.STATUS,
+            Vender: employee.Project.Vender,
+            IN: employee.Project.IN,
+            OUT: employee.Project.OUT,
+            BillingRate: employee.Project.BillingRate,
+            SkillSheet: employee.UserData.SkillSheet || null,
+          }));
+
+          const sortedData = [...formattedData].sort((a, b) => parseInt(a.UserID) - parseInt(b.UserID));
           setEmployees(sortedData);
           setFilteredEmployees(sortedData);
         }
       })
       .catch(error => console.error('Error fetching employees:', error));
-  };  
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -56,7 +82,7 @@ function EmployeeList() {
       const lowerQuery = query.toLowerCase();
       const searched = employees.filter(employee =>
         Object.values(employee).some(value =>
-          String(value).toLowerCase().includes(lowerQuery)
+          value !== undefined && String(value).toLowerCase().includes(lowerQuery)
         )
       );
       setFilteredEmployees(searched);
@@ -71,7 +97,7 @@ function EmployeeList() {
     Object.entries(newFilters).forEach(([column, value]) => {
       if (value) {
         filteredData = filteredData.filter(employee =>
-          String(employee[column]).includes(value)
+          String(employee[column as keyof Employee] ?? "").includes(value)  // 🔹 修正
         );
       }
     });
@@ -80,7 +106,7 @@ function EmployeeList() {
       const lowerQuery = searchQuery.toLowerCase();
       filteredData = filteredData.filter(employee =>
         Object.values(employee).some(value =>
-          String(value).toLowerCase().includes(lowerQuery)
+          value !== undefined && String(value).toLowerCase().includes(lowerQuery)
         )
       );
     }
@@ -97,7 +123,7 @@ function EmployeeList() {
         <div className="search-container">
           <input
             type="text"
-            placeholder="社員ID・氏名・メール・参画先 などで検索"
+            placeholder="社員ID・氏名・参画先 などで検索"
             value={searchQuery}
             onChange={(e) => applySearch(e.target.value)}
             className="search-input"
@@ -119,7 +145,7 @@ function EmployeeList() {
         {/* フィルターメニュー */}
         {showFilterOptions && (
           <div className="filter-options">
-            {["id", "name", "status", "project", "money", "in", "out", "mail"].map((column) => (
+            {["UserID", "Name", "status", "Vender", "IN", "OUT"].map((column) => (
               <div key={column}>
                 <label>{column}:</label>
                 <input
@@ -157,12 +183,12 @@ function EmployeeList() {
           </thead>
           <tbody>
             {filteredEmployees.map((employee) => (
-              <tr key={employee._id || employee.UserID}>
+              <tr key={employee.UserID}>
                 <td>{employee.UserID}</td>
                 <td>{employee.Name}</td>
                 <td>{employee.status}</td>
                 <td>{employee.Vender}</td>
-                <td>{employee.money}</td>
+                <td>{employee.BillingRate}</td>
                 <td>{employee.IN}</td>
                 <td>{employee.OUT}</td>
                 <td>
@@ -175,7 +201,7 @@ function EmployeeList() {
                   )}
                 </td>
                 <td>
-                  <button onClick={() => router.push(`/employees/edit?id=${employee._id}`)}>
+                  <button onClick={() => router.push(`/employees/edit?id=${employee.UserID}`)}>
                     編集
                   </button>
                 </td>
