@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import '../styles/EmployeeList.css';
+import React, { useEffect, useState } from "react";
+import "../styles/EmployeeList.css";
 import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 
 // DynamoDB のレスポンスの型
 interface DynamoDBEmployee {
   UserID: string;
-  UserData: {
-    Name: string;
-    SkillSheet?: string | null;
-  };
+  Name: string;
   Project: {
     STATUS: string;
     Vender: string;
@@ -17,9 +14,17 @@ interface DynamoDBEmployee {
     OUT: string;
     BillingRate: string;
   };
+  UserData: {
+    SkillSheet?: string | null;
+    KeyEmployee?: boolean;
+    Age?: string;
+    JoiningMonth?: string;
+  };
   Retiree: {
     RetireeFLG: boolean;
+    Reason?: string;
   };
+  watch?: Record<string, boolean>;
 }
 
 // フロントエンドで使用する型
@@ -30,8 +35,14 @@ interface Employee {
   Vender: string;
   IN: string;
   OUT: string;
-  SkillSheet?: string;
-  [key: string]: string | undefined;  // 🔹 インデックスシグネチャを追加
+  BillingRate: string;
+  SkillSheet?: string | null;
+  KeyEmployee?: boolean;
+  Age?: string;
+  JoiningMonth?: string;
+  RetireeFLG: boolean;
+  RetireeReason?: string;
+  watch?: Record<string, boolean>;
 }
 
 function EmployeeList() {
@@ -39,34 +50,61 @@ function EmployeeList() {
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [filters, setFilters] = useState<{ [key: string]: string }>({});
   const [showFilterOptions, setShowFilterOptions] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const API_ENDPOINT = "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+  const API_ENDPOINT =
+    "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
   const TABLE_NAME = "Proto_User_Profiles";
 
-  const fetchEmployees = () => {
-    fetch(`${API_ENDPOINT}?tableName=${TABLE_NAME}`)
-      .then(response => response.json())
-      .then((data) => {
-        if (data.data) {
-          const formattedData = data.data.map((employee: DynamoDBEmployee) => ({
-            UserID: employee.UserID,
-            Name: employee.UserData.Name,
-            status: employee.Project.STATUS,
-            Vender: employee.Project.Vender,
-            IN: employee.Project.IN,
-            OUT: employee.Project.OUT,
-            BillingRate: employee.Project.BillingRate,
-            SkillSheet: employee.UserData.SkillSheet || null,
-          }));
+  const fetchEmployees = async () => {
+    try {
+      const params = new URLSearchParams({ tableName: TABLE_NAME });
+      const response = await fetch(`${API_ENDPOINT}?${params.toString()}`);
 
-          const sortedData = [...formattedData].sort((a, b) => parseInt(a.UserID) - parseInt(b.UserID));
-          setEmployees(sortedData);
-          setFilteredEmployees(sortedData);
-        }
-      })
-      .catch(error => console.error('Error fetching employees:', error));
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("API Response:", result);
+
+      if (!result.data || !Array.isArray(result.data)) {
+        console.error("No valid data received:", result);
+        return;
+      }
+
+      const formattedData: Employee[] = result.data.map(
+        (employee: DynamoDBEmployee) => ({
+          UserID: employee.UserID || "不明",
+          Name: employee.Name || "不明",
+          status: employee.Project?.STATUS || "不明",
+          Vender: employee.Project?.Vender || "不明",
+          IN: employee.Project?.IN || "不明",
+          OUT: employee.Project?.OUT || "不明",
+          BillingRate: employee.Project?.BillingRate || "不明",
+          SkillSheet: employee.UserData?.SkillSheet || null,
+          KeyEmployee: employee.UserData?.KeyEmployee || false,
+          Age: employee.UserData?.Age || "不明",
+          JoiningMonth: employee.UserData?.JoiningMonth || "不明",
+          RetireeFLG: employee.Retiree?.RetireeFLG || false,
+          RetireeReason: employee.Retiree?.Reason || "不明",
+          watch: employee.watch || {},
+        })
+      );
+
+      console.log("Formatted Data:", formattedData);
+
+      // 🔹 IDを数値順にソート
+      const sortedData = formattedData.sort(
+        (a, b) => parseInt(a.UserID, 10) - parseInt(b.UserID, 10)
+      );
+
+      setEmployees(sortedData);
+      setFilteredEmployees(sortedData);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
   };
 
   useEffect(() => {
@@ -80,9 +118,11 @@ function EmployeeList() {
       applyFilters(filters);
     } else {
       const lowerQuery = query.toLowerCase();
-      const searched = employees.filter(employee =>
-        Object.values(employee).some(value =>
-          value !== undefined && String(value).toLowerCase().includes(lowerQuery)
+      const searched = employees.filter((employee) =>
+        Object.values(employee).some(
+          (value) =>
+            value !== undefined &&
+            String(value).toLowerCase().includes(lowerQuery)
         )
       );
       setFilteredEmployees(searched);
@@ -96,17 +136,19 @@ function EmployeeList() {
 
     Object.entries(newFilters).forEach(([column, value]) => {
       if (value) {
-        filteredData = filteredData.filter(employee =>
-          String(employee[column as keyof Employee] ?? "").includes(value)  // 🔹 修正
+        filteredData = filteredData.filter((employee) =>
+          String(employee[column as keyof Employee] ?? "").includes(value)
         );
       }
     });
 
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
-      filteredData = filteredData.filter(employee =>
-        Object.values(employee).some(value =>
-          value !== undefined && String(value).toLowerCase().includes(lowerQuery)
+      filteredData = filteredData.filter((employee) =>
+        Object.values(employee).some(
+          (value) =>
+            value !== undefined &&
+            String(value).toLowerCase().includes(lowerQuery)
         )
       );
     }
@@ -134,10 +176,16 @@ function EmployeeList() {
           <button className="refresh-button" onClick={fetchEmployees}>
             ページの更新
           </button>
-          <button className="add-button" onClick={() => router.push("/employees/edit")}>
+          <button
+            className="add-button"
+            onClick={() => router.push("/employees/edit")}
+          >
             新規追加
           </button>
-          <button className="filter-button" onClick={() => setShowFilterOptions((prev) => !prev)}>
+          <button
+            className="filter-button"
+            onClick={() => setShowFilterOptions((prev) => !prev)}
+          >
             フィルター
           </button>
         </div>
@@ -145,21 +193,29 @@ function EmployeeList() {
         {/* フィルターメニュー */}
         {showFilterOptions && (
           <div className="filter-options">
-            {["UserID", "Name", "status", "Vender", "IN", "OUT"].map((column) => (
-              <div key={column}>
-                <label>{column}:</label>
-                <input
-                  type="text"
-                  value={filters[column] || ''}
-                  onChange={(e) => {
-                    const newFilters = { ...filters, [column]: e.target.value };
-                    applyFilters(newFilters);
-                  }}
-                />
-              </div>
-            ))}
+            {["UserID", "Name", "status", "Vender", "IN", "OUT"].map(
+              (column) => (
+                <div key={column}>
+                  <label>{column}:</label>
+                  <input
+                    type="text"
+                    value={filters[column] || ""}
+                    onChange={(e) => {
+                      const newFilters = {
+                        ...filters,
+                        [column]: e.target.value,
+                      };
+                      applyFilters(newFilters);
+                    }}
+                  />
+                </div>
+              )
+            )}
             <div>
-              <button className="reset-filter-button" onClick={() => applyFilters({})}>
+              <button
+                className="reset-filter-button"
+                onClick={() => applyFilters({})}
+              >
                 フィルターを解除
               </button>
             </div>
@@ -193,15 +249,23 @@ function EmployeeList() {
                 <td>{employee.OUT}</td>
                 <td>
                   {employee.SkillSheet ? (
-                    <a href={employee.SkillSheet} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={employee.SkillSheet}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       参照
                     </a>
                   ) : (
-                    'なし'
+                    "なし"
                   )}
                 </td>
                 <td>
-                  <button onClick={() => router.push(`/employees/edit?id=${employee.UserID}`)}>
+                  <button
+                    onClick={() =>
+                      router.push(`/employees/edit?id=${employee.UserID}`)
+                    }
+                  >
                     編集
                   </button>
                 </td>

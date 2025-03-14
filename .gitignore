@@ -87,3 +87,4 @@ awscliv2.zip
 #**.sample
 ##amplify-do-not-edit-end
 node_modules
+.env.local
