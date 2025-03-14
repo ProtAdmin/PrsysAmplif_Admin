@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, ScatterChart, Scatter } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Bar, XAxis, YAxis, Legend, Line, Scatter, ComposedChart, ScatterChart } from "recharts";
 import dayjs from "dayjs";
 
-// DynamoDB のレスポンス型
 interface DynamoDBEmployee {
   UserID: string;
   UserData: {
@@ -16,15 +15,12 @@ interface DynamoDBEmployee {
   };
 }
 
-// グラフ用の色
 const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50", "#9966FF", "#FF9F40"];
 
-// 継続年数のカテゴリ
 const getYearsOfServiceCategory = (joiningMonth: string): string => {
   const now = dayjs();
   const joinDate = dayjs(joiningMonth, "YYYYMM");
   const years = now.diff(joinDate, "year", true);
-
   const formattedYears = Math.round(years * 10) / 10;
 
   if (formattedYears <= 0.5) return "半年以下";
@@ -50,10 +46,8 @@ function ResignationAnalysis() {
       .catch(error => console.error("Error fetching data:", error));
   }, []);
 
-  // 退職者のみ取得
   const retiredEmployees = employees.filter(emp => emp.Retiree?.RetireeFLG);
 
-  // 年代ごとの退職者データを分類
   const ageGroups = {
     "全年代": retiredEmployees,
     "20代": retiredEmployees.filter(emp => emp.UserData.Age && emp.UserData.Age >= 20 && emp.UserData.Age < 30),
@@ -62,39 +56,67 @@ function ResignationAnalysis() {
     "その他": retiredEmployees.filter(emp => emp.UserData.Age && (emp.UserData.Age < 20 || emp.UserData.Age >= 50))
   };
 
+  const resignationData = Object.entries(ageGroups["全年代"].reduce((acc, emp) => {
+    acc[emp.Retiree.Reason] = (acc[emp.Retiree.Reason] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>)).map(([name, value]) => ({ name, value }));
+
   return (
     <Layout>
       <h2>退職分析</h2>
 
-      {/* 既存のグラフ */}
-      <h3>退職理由の分布（棒グラフ）</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={Object.entries(ageGroups["全年代"].reduce((acc, emp) => {
-          acc[emp.Retiree.Reason] = (acc[emp.Retiree.Reason] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>)).map(([name, value]) => ({ name, value }))}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="value" fill="#36A2EB" />
-        </BarChart>
-      </ResponsiveContainer>
+      {/* 1. 棒グラフ + 折れ線グラフを重ねる */}
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+        <div style={{ width: "60%" }}>
+          <h3>退職理由の分布（棒グラフ + 折れ線グラフ）</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={resignationData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill="#36A2EB" />
+              <Line type="monotone" dataKey="value" stroke="#FF6384" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
-      <h3>退職理由の推移（折れ線グラフ）</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={Object.entries(ageGroups["全年代"].reduce((acc, emp) => {
-          acc[emp.Retiree.Reason] = (acc[emp.Retiree.Reason] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>)).map(([name, value]) => ({ name, value }))}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="value" stroke="#FF6384" />
-        </LineChart>
-      </ResponsiveContainer>
+      {/* 2. 年代別の円グラフを2x2で表示 */}
+      <h3>年代別の退職理由分布（円グラフ）</h3>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gridGap: "20px",
+        justifyContent: "center"
+      }}>
+        {Object.entries(ageGroups).map(([group, employees], groupIndex) => {
+          const serviceYears = employees.reduce((acc, emp) => {
+            const category = getYearsOfServiceCategory(emp.UserData.JoiningMonth);
+            acc[category] = (acc[category] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
 
+          return (
+            <div key={groupIndex} style={{ textAlign: "center" }}>
+              <h4>{group} の退職理由分布</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={Object.entries(serviceYears).map(([name]) => ({ name, value: serviceYears[name] }))}
+                    dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70}>
+                    {Object.entries(serviceYears).map(([,], index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 3. 散布図 */}
       <h3>年齢と継続年数の関係（散布図）</h3>
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart>
@@ -109,33 +131,6 @@ function ResignationAnalysis() {
           }))} fill="#4CAF50" />
         </ScatterChart>
       </ResponsiveContainer>
-
-      {/* 年代ごとの円グラフ */}
-      {Object.entries(ageGroups).map(([group, employees], groupIndex) => {
-        const serviceYears = employees.reduce((acc, emp) => {
-          const category = getYearsOfServiceCategory(emp.UserData.JoiningMonth);
-          acc[category] = (acc[category] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        return (
-          <div key={groupIndex}>
-            <h3>{group} の退職理由分布（円グラフ）</h3>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <ResponsiveContainer width="50%" height={300}>
-                <PieChart>
-                  <Pie data={Object.entries(serviceYears).map(([name]) => ({ name, value: serviceYears[name] }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
-                    {Object.entries(serviceYears).map(([,], index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
-      })}
     </Layout>
   );
 }
