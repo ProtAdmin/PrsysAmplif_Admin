@@ -108,9 +108,9 @@ export default function App() {
       } else if (cloudFrontDomain === "https://d2f1z4tvqap875.cloudfront.net") {
         console.log("✅ System B is loaded");
         if (groups.includes("Proto-Admin-Group")) {
-          destination = "/employee";
+          destination = "/education";
         } else if (groups.includes("Proto-User-Group")) {
-          destination = "/employees";
+          destination = "/education";
         }
       }
 

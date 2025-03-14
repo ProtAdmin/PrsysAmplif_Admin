@@ -42,7 +42,7 @@ function EmployeeList() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
-  const API_ENDPOINT = "https://k6c1jaiusb.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+  const API_ENDPOINT = "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
   const TABLE_NAME = "Proto_User_Profiles";
 
   const fetchEmployees = () => {

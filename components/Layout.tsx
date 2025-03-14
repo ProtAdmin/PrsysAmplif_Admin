@@ -20,7 +20,6 @@ export default function Layout({ children }: LayoutProps) {
     { path: "/admin", icon: faPencilAlt, label: "HOME" },
     { path: "/employees", icon: faUsers, label: "社員一覧" },
     { path: "/employees/edit", icon: faUser, label: "人員処理" },
-    { path: "/education", icon: faPencilAlt, label: "新人教育" },
     { path: "/retiree", icon: faAddressCard, label: "退職者分析" }
   ];
 

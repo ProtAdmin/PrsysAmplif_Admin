@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Layout from "../components/Layout";
+import Layout from "../components/Layout_User";
 
 const categories = ["過去資料", "クラウド", "OS", "NW"];
 const videos = [

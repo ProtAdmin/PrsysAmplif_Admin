@@ -24,16 +24,19 @@ const getYearsOfServiceCategory = (joiningMonth: string): string => {
   const now = dayjs();
   const joinDate = dayjs(joiningMonth, "YYYYMM");
   const years = now.diff(joinDate, "year", true);
-  if (years <= 0.5) return "半年以下";
-  if (years <= 1) return "1年以下";
-  if (years <= 3) return "3年以下";
-  if (years <= 5) return "5年以下";
+
+  const formattedYears = Math.round(years * 10) / 10;
+
+  if (formattedYears <= 0.5) return "半年以下";
+  if (formattedYears <= 1) return "1年以下";
+  if (formattedYears <= 3) return "3年以下";
+  if (formattedYears <= 5) return "5年以下";
   return "10年以下";
 };
 
 function ResignationAnalysis() {
   const [employees, setEmployees] = useState<DynamoDBEmployee[]>([]);
-  const API_ENDPOINT = "https://k6c1jaiusb.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+  const API_ENDPOINT = "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
   const TABLE_NAME = "Proto_User_Profiles";
 
   useEffect(() => {
