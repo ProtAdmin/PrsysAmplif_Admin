@@ -75,10 +75,51 @@ const VideoList = () => {
     fetchUserID();
   }, [router]);
 
-  // カテゴリ一覧を取得
+  // 🔹 ユーザーが動画を視聴完了したら Lambda に送信する関数
+  const handleVideoWatched = async (videoTitle: string) => {
+    try {
+      const idToken = localStorage.getItem("id_token");
+      if (!idToken) {
+        console.warn("⚠️ No ID Token found.");
+        return;
+      }
+
+      const payload = parseIdToken(idToken);
+      if (!payload) {
+        console.warn("⚠️ Failed to parse ID Token.");
+        return;
+      }
+
+      const userID = payload["custom:UserID"];
+      console.log("🔹 Sending request for userID:", userID, "video:", videoTitle);
+
+      const apiUrl = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/UpdateWatchHistory"; // 🔹 Lambda の API Gateway URL
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userID, videoTitle })
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      console.log("✅ Video watched flag updated:", videoTitle);
+
+      // 🔹 UI 側でも `watched: true` に更新
+      setVideos((prevVideos) =>
+        prevVideos.map((video) =>
+          video.title === videoTitle ? { ...video, watched: true } : video
+        )
+      );
+    } catch (error) {
+      console.error("❌ Error updating watched status:", error);
+    }
+  };
+
+  // 🔹 カテゴリ一覧を取得
   const categories = Array.from(new Set(videos.map((video) => video.category)));
 
-  // 選択したカテゴリの動画を取得
+  // 🔹 選択したカテゴリの動画を取得
   const filteredVideos = videos
     .filter((video) =>
       selectedCategory === "全ての動画" ? true : video.category === selectedCategory
@@ -88,7 +129,6 @@ const VideoList = () => {
   return (
     <Layout>
       <div className="education-container">
-        {/* 左サイドバー: カテゴリ一覧 */}
         <aside className="category-sidebar">
           <h3>カテゴリ</h3>
           <div className="category-buttons">
@@ -116,14 +156,14 @@ const VideoList = () => {
           </div>
         </aside>
 
-        {/* 中央: 動画プレーヤー */}
         <div className="video-display">
           {selectedVideo ? (
             <video
-              key={selectedVideo.title}  // ✅ Ensure React re-renders the component
+              key={selectedVideo.title}
               controls
               width="100%"
               className="video-player"
+              onEnded={() => handleVideoWatched(selectedVideo.title)}
             >
               <source src={selectedVideo.url} type="video/mp4" />
               お使いのブラウザは video タグをサポートしていません。
@@ -133,9 +173,7 @@ const VideoList = () => {
           )}
         </div>
 
-        {/* 右側: 検索欄 + 動画リスト */}
         <div className="main-content">
-          {/* 検索欄 */}
           <div className="search-bar">
             <input
               type="text"
@@ -145,7 +183,6 @@ const VideoList = () => {
             />
           </div>
 
-          {/* 動画リスト */}
           <div className="video-list">
             {filteredVideos.length > 0 ? (
               filteredVideos.map((video) => (
@@ -223,24 +260,36 @@ const VideoList = () => {
         padding: 10px;
         background: #f9f9f9;
         border-radius: 8px;
-      }
-      .video-btn {
-        padding: 12px;
-        font-size: 16px;
-        background: white;
-        border: 2px solid #007bff;
-        color: #007bff;
-        border-radius: 6px;
-        cursor: pointer;
-        text-align: left;
-        transition: all 0.3s ease;
-        width: 100%;
-      }
-      .video-btn:hover,
-      .video-btn.active {
-        background: #007bff;
-        color: white;
-      }
+        }
+        .video-btn {
+          padding: 12px;
+          font-size: 16px;
+          background: white;
+          border: 2px solid #007bff;
+          color: #007bff;
+          border-radius: 6px;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.3s ease;
+          width: 100%;
+        }
+        .video-btn:hover,
+        .video-btn.active {
+          background: #007bff;
+          color: white;
+        }
+        .education-container {
+          display: grid;
+          grid-template-columns: 220px 2fr 3fr;
+          gap: 20px;
+          padding: 20px;
+        }
+        .category-sidebar { background: #f8f9fa; padding: 20px; }
+        .category-btn { border: 2px solid #007bff; color: #007bff; }
+        .category-btn:hover, .category-btn.active { background: #007bff; color: white; }
+        .video-player { border: 2px solid #007bff; border-radius: 8px; }
+        .video-btn { border: 2px solid #007bff; }
+        .video-btn.watched { background: #ccc; color: #555; }
       `}</style>
     </Layout>
   );
