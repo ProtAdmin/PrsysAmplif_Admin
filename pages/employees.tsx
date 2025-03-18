@@ -54,7 +54,7 @@ function EmployeeList() {
   const router = useRouter();
 
   const API_ENDPOINT =
-    "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+    "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-Get";
   const TABLE_NAME = "Proto_User_Profiles";
 
   const fetchEmployees = async () => {
