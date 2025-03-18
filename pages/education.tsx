@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import Layout from "../components/Layout_User";
 
 type Video = {
@@ -8,32 +9,71 @@ type Video = {
   category: string;
 };
 
+// 🔍 ID トークンをデコードする関数
+function parseIdToken(idToken: string) {
+  try {
+    const parts = idToken.split(".");
+    if (parts.length !== 3) {
+      throw new Error("Invalid ID Token format");
+    }
+    return JSON.parse(atob(parts[1])); // デコード
+  } catch (error) {
+    console.error("❌ Failed to parse ID Token:", error);
+    return null;
+  }
+}
+
 const VideoList = () => {
+  const router = useRouter();
   const [videos, setVideos] = useState<Video[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("全ての動画");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    const apiUrl =
-      "https://t35qg36r0e.execute-api.ap-northeast-1.amazonaws.com/main/prod-Cognito-Users-Create?userID=3217";
+    const fetchUserID = async () => {
+      try {
+        const idToken = localStorage.getItem("id_token");
+        if (!idToken) {
+          console.warn("⚠️ No ID Token found. Redirecting to unauthorized page...");
+          router.push("/unauthorized");
+          return;
+        }
 
-    fetch(apiUrl)
-      .then(async (res) => {
+        const payload = parseIdToken(idToken);
+        if (!payload) {
+          console.warn("⚠️ ID Token parsing failed. Redirecting to unauthorized page...");
+          router.push("/unauthorized");
+          return;
+        }
+
+        const userID = payload["custom:UserID"];
+        console.log("🔹 取得した UserID:", userID);
+
+        const apiUrl = `https://t35qg36r0e.execute-api.ap-northeast-1.amazonaws.com/main/prod-Cognito-Users-Create?userID=${userID}`;
+        console.log("🌍 API URL:", apiUrl);
+
+        const res = await fetch(apiUrl);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.json();
-      })
-      .then((data) => {
+
+        const data = await res.json();
+        console.log("📦 APIレスポンス:", data);
+
         if (data?.videos && Array.isArray(data.videos)) {
-          setVideos(data.videos);
+          const filteredVideos = data.videos.filter(
+            (video: Video) => !video.title.includes("Dummy")
+          );
+          setVideos(filteredVideos);
         }
-      })
-      .catch((error) => {
-        console.error("❌ APIリクエスト失敗:", error);
-      });
-  }, []);
+      } catch (error) {
+        console.error("❌ 動画データ取得失敗:", error);
+      }
+    };
+
+    fetchUserID();
+  }, [router]);
 
   // カテゴリ一覧を取得
   const categories = Array.from(new Set(videos.map((video) => video.category)));
@@ -79,7 +119,12 @@ const VideoList = () => {
         {/* 中央: 動画プレーヤー */}
         <div className="video-display">
           {selectedVideo ? (
-            <video controls width="100%" className="video-player">
+            <video
+              key={selectedVideo.title}  // ✅ Ensure React re-renders the component
+              controls
+              width="100%"
+              className="video-player"
+            >
               <source src={selectedVideo.url} type="video/mp4" />
               お使いのブラウザは video タグをサポートしていません。
             </video>
@@ -123,7 +168,7 @@ const VideoList = () => {
       <style jsx>{`
         .education-container {
           display: grid;
-          grid-template-columns: 220px 2fr 3fr; /* カテゴリ, 動画リスト, 動画プレーヤー */
+          grid-template-columns: 220px 2fr 3fr;
           gap: 20px;
           padding: 20px;
           height: 90vh;
@@ -153,7 +198,8 @@ const VideoList = () => {
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        .category-btn:hover, .category-btn.active {
+        .category-btn:hover,
+        .category-btn.active {
           background: #007bff;
           color: white;
         }
@@ -167,56 +213,34 @@ const VideoList = () => {
           border-radius: 12px;
           min-height: 300px;
         }
-        .video-placeholder {
-          font-size: 18px;
-          color: #555;
-        }
-        .video-player {
-          max-width: 100%;
-          border-radius: 8px;
-        }
-        .main-content {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-        }
-        .search-bar input {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 6px;
-        }
         .video-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          max-height: 70vh;
-          overflow-y: auto;
-          width: 100%;
-          padding: 10px;
-          background: #f9f9f9;
-          border-radius: 8px;
-        }
-        .video-btn {
-          padding: 14px;
-          font-size: 16px;
-          background: white;
-          border: 2px solid #007bff;
-          color: #007bff;
-          border-radius: 6px;
-          cursor: pointer;
-          text-align: left;
-          transition: all 0.3s ease;
-          width: 100%;
-        }
-        .video-btn:hover {
-          background: #007bff;
-          color: white;
-        }
-        .no-videos {
-          text-align: center;
-          color: #888;
-        }
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 70vh;
+        overflow-y: auto;
+        width: 100%;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 8px;
+      }
+      .video-btn {
+        padding: 12px;
+        font-size: 16px;
+        background: white;
+        border: 2px solid #007bff;
+        color: #007bff;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+      .video-btn:hover,
+      .video-btn.active {
+        background: #007bff;
+        color: white;
+      }
       `}</style>
     </Layout>
   );
