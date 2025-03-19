@@ -250,7 +250,7 @@ function EmployeeList() {
                 <td>
                   {employee.SkillSheet ? (
                     <a
-                      href={employee.SkillSheet}
+                    href={`https://proto-internal-it-system-employee-bucket.s3.ap-northeast-1.amazonaws.com/${encodeURIComponent(employee.SkillSheet)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
