@@ -101,6 +101,9 @@ export default function App() {
         return;
       }
 
+      // 🔹 userID を localStorage に保存（★ここが追加されたポイント）
+      localStorage.setItem("userId", userID);
+
       const groups = payload["cognito:groups"] || [];
       console.log("✅ User Groups:", groups);
 
@@ -147,7 +150,8 @@ export default function App() {
     try {
       await signOut();
       console.log("✅ User signed out successfully.");
-      localStorage.removeItem("id_token"); // ✅ サインアウト時に削除
+      localStorage.removeItem("id_token");
+      localStorage.removeItem("userId"); // 🔹 サインアウト時に userId も削除
       router.push("/");
     } catch (error) {
       console.error("❌ Sign out failed:", error);

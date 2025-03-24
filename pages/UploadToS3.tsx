@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 
-const API_GATEWAY_URL = "https://your-cloudfront-domain.cloudfront.net/upload/get-presigned-url"; // CloudFront 経由のAPI Gatewayエンドポイント
-const UPDATE_DYNAMODB_URL = "https://your-cloudfront-domain.cloudfront.net/update-dynamodb"; // DynamoDB 更新API
+const API_GATEWAY_URL = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/upload";
+const UPDATE_DYNAMODB_URL = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/update-dynamodb-api";
 
-const UploadToS3 = ({ userId }: { userId: string }) => {
+const UploadToS3 = () => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      alert("ユーザーIDが見つかりません。ログインしていますか？");
+    }
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -20,10 +30,15 @@ const UploadToS3 = ({ userId }: { userId: string }) => {
       return;
     }
 
+    if (!userId) {
+      alert("ユーザーIDが取得できませんでした");
+      return;
+    }
+
     setUploading(true);
 
     try {
-      // 🔹 1. CloudFront 経由で Presigned URL を取得
+      // 🔹 1. Presigned URL を取得
       const presignedResponse = await fetch(API_GATEWAY_URL, {
         method: "POST",
         body: JSON.stringify({ fileName: file.name, fileType: file.type }),
@@ -31,36 +46,28 @@ const UploadToS3 = ({ userId }: { userId: string }) => {
       });
 
       const { presignedUrl } = await presignedResponse.json();
-      if (!presignedUrl) {
-        throw new Error("Presigned URL を取得できませんでした");
-      }
+      if (!presignedUrl) throw new Error("Presigned URL を取得できませんでした");
 
-      // 🔹 2. Presigned URL を使って S3 にファイルをアップロード
+      // 🔹 2. S3 にアップロード
       const uploadResponse = await fetch(presignedUrl, {
         method: "PUT",
         body: file,
-        headers: { "Content-Type": file.type },
+        headers: { "Content-Type": file.type }, // 🔸 明示的に指定
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error("S3 アップロードに失敗しました");
-      }
+      if (!uploadResponse.ok) throw new Error("S3 アップロードに失敗しました");
 
-      // 🔹 3. アップロード成功後に DynamoDB の `SkillSheet` を更新
+      // 🔹 3. DynamoDB を更新
       const updateResponse = await fetch(UPDATE_DYNAMODB_URL, {
         method: "POST",
-        body: JSON.stringify({
-          userId,
-          skillSheet: file.name, // ファイル名を DynamoDB に保存
-        }),
+        body: JSON.stringify({ userId, skillSheet: file.name }),
         headers: { "Content-Type": "application/json" },
       });
 
-      if (!updateResponse.ok) {
-        throw new Error("DynamoDB 更新に失敗しました");
-      }
+      if (!updateResponse.ok) throw new Error("DynamoDB 更新に失敗しました");
 
       alert("アップロード成功！ 🎉");
+      setFile(null); // 🔸 アップロード成功後にリセット
     } catch (error) {
       console.error("エラー:", error);
       alert("アップロード時にエラーが発生しました");
@@ -71,12 +78,12 @@ const UploadToS3 = ({ userId }: { userId: string }) => {
 
   return (
     <Layout>
-    <div>
-      <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
-      <button onClick={uploadFile} disabled={uploading}>
-        {uploading ? "アップロード中..." : "アップロード"}
-      </button>
-    </div>
+      <div>
+        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
+        <button onClick={uploadFile} disabled={uploading}>
+          {uploading ? "アップロード中..." : "アップロード"}
+        </button>
+      </div>
     </Layout>
   );
 };
