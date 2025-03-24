@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To remove tags from the specified resources**
 
 The following ``untag-resource`` example removes tags from the specified resource in your AWS account. ::
@@ -8,4 +9,16 @@ The following ``untag-resource`` example removes tags from the specified resourc
 
 This command produces no output.
 
+=======
+**To remove tags from the specified resources**
+
+The following ``untag-resource`` example removes tags from the specified resource in your AWS account. ::
+
+    aws accessanalyzer untag-resource \
+        --resource-arn arn:aws:access-analyzer:us-west-2:111122223333:analyzer/ConsoleAnalyzer-account \
+        --tag-keys Environment Purpose
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Using AWS Identity and Access Management Access Analyzer <https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html>`__ in the *AWS IAM User Guide*.

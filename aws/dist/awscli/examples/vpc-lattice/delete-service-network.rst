@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To delete a service network**
 
 The following ``delete-service-network`` example deletes the specified service network. ::
@@ -7,4 +8,15 @@ The following ``delete-service-network`` example deletes the specified service n
 
 This command produces no output.
 
+=======
+**To delete a service network**
+
+The following ``delete-service-network`` example deletes the specified service network. ::
+
+    aws vpc-lattice delete-service-network \
+        --service-network-identifier sn-080ec7dc93EXAMPLE
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Service networks <https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-networks.html>`__ in the *Amazon VPC Lattice User Guide*.

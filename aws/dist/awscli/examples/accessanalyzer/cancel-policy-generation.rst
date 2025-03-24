@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To cancel the requested policy generation**
 
 The following ``cancel-policy-generation`` example cancels the requested policy generation job id. ::
@@ -7,4 +8,15 @@ The following ``cancel-policy-generation`` example cancels the requested policy 
 
 This command produces no output.
 
+=======
+**To cancel the requested policy generation**
+
+The following ``cancel-policy-generation`` example cancels the requested policy generation job id. ::
+
+    aws accessanalyzer cancel-policy-generation \
+        --job-id 923a56b0-ebb8-4e80-8a3c-a11ccfbcd6f2
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `IAM Access Analyzer policy generation <https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-policy-generation.html>`__ in the *AWS IAM User Guide*.

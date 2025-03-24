@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To wait until a NAT gateway is deleted**
 
 The following ``wait nat-gateway-deleted`` example pauses and resumes running only after it confirms that the specified NAT gateway is deleted. ::
@@ -7,4 +8,15 @@ The following ``wait nat-gateway-deleted`` example pauses and resumes running on
 
 This command produces no output.
 
+=======
+**To wait until a NAT gateway is deleted**
+
+The following ``wait nat-gateway-deleted`` example pauses and resumes running only after it confirms that the specified NAT gateway is deleted. ::
+
+    aws ec2 wait nat-gateway-deleted \
+        --nat-gateway-ids nat-1234567890abcdef0
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `NAT gateways <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html>`__ in the *Amazon VPC User Guide*.

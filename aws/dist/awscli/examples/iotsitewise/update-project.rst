@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To update a project's details**
 
 The following ``update-project`` example updates a wind farm project. ::
@@ -9,4 +10,17 @@ The following ``update-project`` example updates a wind farm project. ::
 
 This command produces no output.
 
+=======
+**To update a project's details**
+
+The following ``update-project`` example updates a wind farm project. ::
+
+    aws iotsitewise update-project \
+        --project-id a1b2c3d4-5678-90ab-cdef-eeeeeEXAMPLE \
+        --project-name "Wind Farm 1" \
+        --project-description "Contains asset visualizations for Wind Farm #1 for Example Corp."
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Changing project details <https://docs.aws.amazon.com/iot-sitewise/latest/appguide/edit-project-details.html>`__ in the *AWS IoT SiteWise Monitor Application Guide*.

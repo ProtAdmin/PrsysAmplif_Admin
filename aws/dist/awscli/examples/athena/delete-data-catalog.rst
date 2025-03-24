@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To delete a data catalog**
 
 The following ``delete-data-catalog`` example deletes the ``UnusedDataCatalog`` data catalog. ::
@@ -7,4 +8,15 @@ The following ``delete-data-catalog`` example deletes the ``UnusedDataCatalog`` 
 
 This command produces no output.
 
+=======
+**To delete a data catalog**
+
+The following ``delete-data-catalog`` example deletes the ``UnusedDataCatalog`` data catalog. ::
+
+    aws athena delete-data-catalog \
+        --name UnusedDataCatalog
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Deleting a Catalog: delete-data-catalog <https://docs.aws.amazon.com/athena/latest/ug/datastores-hive-cli.html#datastores-hive-cli-deleting-a-catalog>`__ in the *Amazon Athena User Guide*.

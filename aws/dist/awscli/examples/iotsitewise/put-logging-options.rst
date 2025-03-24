@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To specify the level of logging**
 
 The following ``put-logging-options`` example enables ``INFO`` level logging in AWS IoT SiteWise. Other levels include ``DEBUG`` and ``OFF``. ::
@@ -7,4 +8,15 @@ The following ``put-logging-options`` example enables ``INFO`` level logging in 
 
 This command produces no output.
 
+=======
+**To specify the level of logging**
+
+The following ``put-logging-options`` example enables ``INFO`` level logging in AWS IoT SiteWise. Other levels include ``DEBUG`` and ``OFF``. ::
+
+    aws iotsitewise put-logging-options \
+        --logging-options level=INFO
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Monitoring AWS IoT SiteWise with Amazon CloudWatch Logs <https://docs.aws.amazon.com/iot-sitewise/latest/userguide/monitor-cloudwatch-logs.html>`__ in the *AWS IoT SiteWise User Guide*.

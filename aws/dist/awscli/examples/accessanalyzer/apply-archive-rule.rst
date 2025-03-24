@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To apply an archive rule to existing findings that meet the archive rule criteria**
 
 The following ``apply-archive-rule`` example applies an archive rule to existing findings that meet the archive rule criteria. ::
@@ -8,4 +9,16 @@ The following ``apply-archive-rule`` example applies an archive rule to existing
 
 This command produces no output.
 
+=======
+**To apply an archive rule to existing findings that meet the archive rule criteria**
+
+The following ``apply-archive-rule`` example applies an archive rule to existing findings that meet the archive rule criteria. ::
+
+    aws accessanalyzer apply-archive-rule \
+        --analyzer-arn arn:aws:access-analyzer:us-west-2:111122223333:analyzer/UnusedAccess-ConsoleAnalyzer-organization \
+        --rule-name MyArchiveRule 
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Archive rules <https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-archive-rules.html>`__ in the *AWS IAM User Guide*.

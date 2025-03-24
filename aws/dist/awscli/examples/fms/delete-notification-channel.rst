@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To remove the SNS topic information for Firewall Manager logs**
 
 The following ``delete-notification-channel`` example removes the SNS topic information. ::
@@ -7,3 +8,14 @@ The following ``delete-notification-channel`` example removes the SNS topic info
 This command produces no output.                  
 
 For more information, see `Configure Amazon SNS Notifications and Amazon CloudWatch Alarms <https://docs.aws.amazon.com/waf/latest/developerguide/get-started-fms-shield-cloudwatch.html>`__ in the *AWS WAF, AWS Firewall Manager, and AWS Shield Advanced Developer Guide*.
+=======
+**To remove the SNS topic information for Firewall Manager logs**
+
+The following ``delete-notification-channel`` example removes the SNS topic information. ::
+
+    aws fms delete-notification-channel
+
+This command produces no output.                  
+
+For more information, see `Configure Amazon SNS Notifications and Amazon CloudWatch Alarms <https://docs.aws.amazon.com/waf/latest/developerguide/get-started-fms-shield-cloudwatch.html>`__ in the *AWS WAF, AWS Firewall Manager, and AWS Shield Advanced Developer Guide*.
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898

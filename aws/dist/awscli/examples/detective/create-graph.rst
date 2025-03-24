@@ -2,7 +2,11 @@
 
 The following ``create-graph`` example enables Detective for the AWS account that runs the command in the Region where the command is run. A new behavior graph is created that has that account as its administrator account. The command also assigns the value Finance to the Department tag. ::
 
+<<<<<<< HEAD
     aws detective create-graph \
+=======
+    aws detective create-graph \
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
         --tags '{"Department": "Finance"}'
 
 Output::

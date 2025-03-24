@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To delete an incident record**
 
 The following ``delete-incident-record`` example deletes the specified incident record. ::
@@ -7,4 +8,15 @@ The following ``delete-incident-record`` example deletes the specified incident 
 
 This command produces no output.
 
+=======
+**To delete an incident record**
+
+The following ``delete-incident-record`` example deletes the specified incident record. ::
+
+    aws ssm-incidents delete-incident-record \
+        --arn "arn:aws:ssm-incidents::111122223333:incident-record/Example-Response-Plan/6ebcc812-85f5-b7eb-8b2f-283e4d844308"
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Incident tracking <https://docs.aws.amazon.com/incident-manager/latest/userguide/tracking.html>`__ in the *Incident Manager User Guide*.

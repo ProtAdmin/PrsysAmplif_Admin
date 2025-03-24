@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To modify cluster snapshot schedule**
 
 The following ``modify-cluster-snapshot-schedule`` example removes the specified snapshot schedule from the specified cluster. ::
@@ -10,3 +11,17 @@ The following ``modify-cluster-snapshot-schedule`` example removes the specified
 This command does not produce any output.
 
 For more information, see `Automated Snapshot Schedules <https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-snapshots.html#automated-snapshot-schedules>`__ in the *Amazon Redshift Cluster Management Guide*.
+=======
+**To modify cluster snapshot schedule**
+
+The following ``modify-cluster-snapshot-schedule`` example removes the specified snapshot schedule from the specified cluster. ::
+
+    aws redshift modify-cluster-snapshot-schedule \
+        --cluster-identifier mycluster \
+        --schedule-identifier mysnapshotschedule \
+        --disassociate-schedule
+
+This command does not produce any output.
+
+For more information, see `Automated Snapshot Schedules <https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-snapshots.html#automated-snapshot-schedules>`__ in the *Amazon Redshift Cluster Management Guide*.
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898

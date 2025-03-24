@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To update your transfer location with a new agent**
 
 The following ``update-location-object-storage`` example updates your DataSync object storage location with a new agent. ::
@@ -9,4 +10,17 @@ The following ``update-location-object-storage`` example updates your DataSync o
 
 This command produces no output.
 
+=======
+**To update your transfer location with a new agent**
+
+The following ``update-location-object-storage`` example updates your DataSync object storage location with a new agent. ::
+
+    aws datasync update-location-object-storage \
+        --location-arn arn:aws:datasync:us-west-2:123456789012:location/loc-abcdef01234567890 \
+        --agent-arns arn:aws:datasync:us-west-2:123456789012:agent/agent-1234567890abcdef0 \
+        --secret-key secret-key-for-object-storage
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Replacing your agent <https://docs.aws.amazon.com/datasync/latest/userguide/replacing-agent.html>`__ in the *AWS DataSync User Guide*.

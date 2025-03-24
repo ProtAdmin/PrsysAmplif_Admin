@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To create a mount target**
 
 The following ``create-mount-target`` example creates a mount target for the specified file system. ::
@@ -22,4 +23,30 @@ Output::
         "VpcId": "vpc-0123456789abcdef0"
     }
 
+=======
+**To create a mount target**
+
+The following ``create-mount-target`` example creates a mount target for the specified file system. ::
+
+    aws efs create-mount-target \
+        --file-system-id fs-c7a0456e \
+        --subnet-id subnet-02bf4c428bexample \
+        --security-groups sg-068f739363example
+
+Output::
+
+    {
+        "OwnerId": "123456789012",
+        "MountTargetId": "fsmt-f9a14450",
+        "FileSystemId": "fs-c7a0456e",
+        "SubnetId": "subnet-02bf4c428bexample",
+        "LifeCycleState": "creating",
+        "IpAddress": "10.0.1.24",
+        "NetworkInterfaceId": "eni-02d542216aexample",
+        "AvailabilityZoneId": "use2-az2",
+        "AvailabilityZoneName": "us-east-2b",
+        "VpcId": "vpc-0123456789abcdef0"
+    }
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Creating mount targets <https://docs.aws.amazon.com/efs/latest/ug/accessing-fs.html>`__ in the *Amazon Elastic File System User Guide*.

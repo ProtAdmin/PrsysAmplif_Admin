@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To remove tags from a load balancer**
 
 The following ``remove-tags`` example removes the ``project`` and ``department`` tags from the specified load balancer. ::
@@ -5,3 +6,12 @@ The following ``remove-tags`` example removes the ``project`` and ``department``
     aws elbv2 remove-tags \
         --resource-arns arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188 \
         --tag-keys project department
+=======
+**To remove tags from a load balancer**
+
+The following ``remove-tags`` example removes the ``project`` and ``department`` tags from the specified load balancer. ::
+
+    aws elbv2 remove-tags \
+        --resource-arns arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188 \
+        --tag-keys project department
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898

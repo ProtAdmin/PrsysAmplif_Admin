@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To delete the specified analyzer**
 
 The following ``delete-analyzer`` example deletes the specified analyzer in your AWS account. ::
@@ -7,4 +8,15 @@ The following ``delete-analyzer`` example deletes the specified analyzer in your
 
 This command produces no output.
 
+=======
+**To delete the specified analyzer**
+
+The following ``delete-analyzer`` example deletes the specified analyzer in your AWS account. ::
+
+    aws accessanalyzer delete-analyzer \
+        --analyzer-name example
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Archive rules <https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-archive-rules.html>`__ in the *AWS IAM User Guide*.

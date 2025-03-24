@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To pause running until an instance is deregistered**
 
 The following ``wait instance-deregistered`` command pauses and continues only after it can confirm that the specified instance is deregistered.
@@ -7,3 +8,14 @@ The following ``wait instance-deregistered`` command pauses and continues only a
         --instances InstanceId=i-1234567890abcdef0
 
 This command produces no output.
+=======
+**To pause running until an instance is deregistered**
+
+The following ``wait instance-deregistered`` command pauses and continues only after it can confirm that the specified instance is deregistered.
+
+    aws elb wait instance-deregistered \
+        --load-balancer-name my-loadbalancer \
+        --instances InstanceId=i-1234567890abcdef0
+
+This command produces no output.
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898

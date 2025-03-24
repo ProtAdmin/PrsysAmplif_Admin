@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To list the active resource operation requests**
 
 The following ``list-resource-requests`` example lists the resource requests for CREATE and UPDATE operations that have failed in your AWS account. ::
@@ -7,6 +8,17 @@ The following ``list-resource-requests`` example lists the resource requests for
 
 Output::
 
+=======
+**To list the active resource operation requests**
+
+The following ``list-resource-requests`` example lists the resource requests for CREATE and UPDATE operations that have failed in your AWS account. ::
+
+    aws cloudcontrol list-resource-requests \
+        --resource-request-status-filter Operations=CREATE,OperationStatuses=FAILED
+
+Output::
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
     {
         "ResourceRequestStatusSummaries": [
             {
@@ -20,6 +32,11 @@ Output::
                 "ErrorCode": "AlreadyExists"
             }
         ]
+<<<<<<< HEAD
     }
 
+=======
+    }
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Managing resource operation requests <https://docs.aws.amazon.com/cloudcontrolapi/latest/userguide/resource-operations-manage-requests.html>`__ in the *Cloud Control API User Guide*.

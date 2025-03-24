@@ -69,6 +69,7 @@ const UploadToS3 = () => {
 
       if (!uploadResponse.ok) throw new Error("S3 アップロードに失敗しました");
 
+
       // 3. DynamoDB を更新
       const updateResponse = await fetch(UPDATE_DYNAMODB_URL, {
         method: "POST",

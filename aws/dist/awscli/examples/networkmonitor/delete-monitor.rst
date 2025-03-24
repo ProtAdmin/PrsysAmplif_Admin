@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To delete a monitor**
 
 The following ``delete-monitor`` example deletes a monitor named ``Example_NetworkMonitor``. ::
@@ -7,4 +8,15 @@ The following ``delete-monitor`` example deletes a monitor named ``Example_Netwo
 
 This command produces no output.
 
+=======
+**To delete a monitor**
+
+The following ``delete-monitor`` example deletes a monitor named ``Example_NetworkMonitor``. ::
+
+    aws networkmonitor delete-monitor \
+        --monitor-name Example_NetworkMonitor
+
+This command produces no output.
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `How Amazon CloudWatch Network Monitor Works <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/nw-monitor-how-it-works.html>`__ in the *Amazon CloudWatch User Guide*.

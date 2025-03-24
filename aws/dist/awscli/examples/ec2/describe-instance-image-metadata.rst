@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **Example 1: To describe the AMI metadata for all instances**
 
 The following ``describe-instance-image-metadata`` example describes the AMI metadata of all the instances in your AWS account in the specified Region. ::
@@ -7,6 +8,17 @@ The following ``describe-instance-image-metadata`` example describes the AMI met
 
 Output::
 
+=======
+**Example 1: To describe the AMI metadata for all instances**
+
+The following ``describe-instance-image-metadata`` example describes the AMI metadata of all the instances in your AWS account in the specified Region. ::
+
+    aws ec2 describe-instance-image-metadata \
+        --region us-east-1
+
+Output::
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
     {
         "InstanceImageMetadata": [
             {
@@ -38,6 +50,7 @@ Output::
             }
         ],
         "NextToken": "...EXAMPLEwIAABAA2JHaFxLnEXAMPLE..."
+<<<<<<< HEAD
     }
 
 For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
@@ -52,6 +65,22 @@ The following ``describe-instance-image-metadata`` example describes the AMI met
 
 Output::
 
+=======
+    }
+
+For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
+
+**Example 2: To describe the AMI metadata for the specified instances**
+
+The following ``describe-instance-image-metadata`` example describes the AMI metadata for the specified instances. ::
+
+    aws ec2 describe-instance-image-metadata \
+        --region us-east-1 \
+        --instance-ids i-1234567890EXAMPLE i-0987654321EXAMPLE
+
+Output::
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
     {
         "InstanceImageMetadata": [
             {
@@ -109,6 +138,7 @@ Output::
                 }
             }
         ]
+<<<<<<< HEAD
     }
 
 For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
@@ -122,6 +152,21 @@ The following ``describe-instance-image-metadata`` example describes the AMI met
         --filters Name=availability-zone,Values=us-east-1a Name=instance-type,Values=t2.nano,t2.micro
 
 Output::
+=======
+    }
+
+For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
+
+**Example 3: To describe the AMI metadata for instances based on filters**
+
+The following ``describe-instance-image-metadata`` example describes the AMI metadata for ``t2.nano`` and ``t2.micro`` instances in the ``us-east-1a`` Availability Zone. ::
+
+    aws ec2 describe-instance-image-metadata \
+        --region us-east-1 \
+        --filters Name=availability-zone,Values=us-east-1a Name=instance-type,Values=t2.nano,t2.micro
+
+Output::
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 
     {
         "InstanceImageMetadata": [
@@ -181,6 +226,12 @@ Output::
             }
         ],
         "NextToken": "...EXAMPLEV7ixRYHwIAABAA2JHaFxLnDAzpatfEXAMPLE..."
+<<<<<<< HEAD
     }
 
 For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
+=======
+    }
+
+For more information, see `Amazon Machine Images in Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`__ in the *Amazon EC2 User Guide*.
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898

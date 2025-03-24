@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **To list your custom metrics**
 
 The following ``list-custom-metrics`` example lists all of your custom metrics. ::
@@ -13,4 +14,21 @@ Output::
         ]
     }
 
+=======
+**To list your custom metrics**
+
+The following ``list-custom-metrics`` example lists all of your custom metrics. ::
+
+    aws iot list-custom-metrics \
+        --region us-east-1
+
+Output::
+
+    {
+        "metricNames": [
+            "batteryPercentage"
+        ]
+    }
+
+>>>>>>> e0e62a74754755ef19912bd622dbb081f288b898
 For more information, see `Custom metrics <https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html>`__ in the *AWS IoT Core Developer Guide*.
