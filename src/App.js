@@ -9,19 +9,6 @@ Amplify.configure({ ...awsExports, ssr: true });
 // ✅ Cognito に手動リダイレクトする関数
 function manualRedirectToCognito() {
   const cloudFrontDomain = window.location.origin;
-  console.log("🌍 Detected CloudFront Domain:", cloudFrontDomain);
-
-  const allowedDomains = [
-    "https://d1xj20n18wdq9y.cloudfront.net",
-    "https://d2f1z4tvqap875.cloudfront.net",
-  ];
-
-  if (!allowedDomains.includes(cloudFrontDomain)) {
-    console.error(`🚫 Unauthorized access from ${cloudFrontDomain}. Redirecting to error page.`);
-    window.location.href = "/unauthorized";
-    return;
-  }
-
   const cognitoLoginUrl =
     "https://ap-northeast-1h2ira36fy.auth.ap-northeast-1.amazoncognito.com/login"
     + "?client_id=128mcrh4ftsd1onp7q9vomaolp"
@@ -29,20 +16,22 @@ function manualRedirectToCognito() {
     + "&scope=openid+profile+email"
     + `&redirect_uri=${encodeURIComponent(cloudFrontDomain)}`;
 
-  console.log("🔄 Redirecting to Cognito:", cognitoLoginUrl);
   window.location.href = cognitoLoginUrl;
 }
 
-// ✅ IDトークンを解析する関数
+// ✅ IDトークンを解析し、有効期限をチェックする関数
 function parseIdToken(idToken) {
   try {
-    console.log("🔍 Decoding ID Token:", idToken);
     const parts = idToken.split(".");
     if (parts.length !== 3) {
       throw new Error("Invalid ID Token format");
     }
-    const decoded = JSON.parse(Buffer.from(parts[1], "base64").toString("utf-8"));
-    console.log("📦 Decoded ID Token Payload:", decoded);
+    const decoded = JSON.parse(atob(parts[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (decoded.exp && decoded.exp < currentTime) {
+      console.warn("⚠️ ID Token expired. Re-authenticating...");
+      return null;
+    }
     return decoded;
   } catch (error) {
     console.error("❌ Failed to parse ID Token:", error);
@@ -53,59 +42,40 @@ function parseIdToken(idToken) {
 export default function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
 
   const fetchUserInfo = useCallback(async () => {
     try {
-      console.log("🔍 Fetching user info...");
-
-      // ✅ IDトークンを取得
       let idTokenValue = localStorage.getItem("id_token");
 
       if (!idTokenValue) {
-        console.warn("⚠️ No ID Token found in localStorage. Trying URL hash...");
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         idTokenValue = hashParams.get("id_token");
-
         if (idTokenValue) {
-          console.log("✅ Retrieved ID Token from URL:", idTokenValue);
           localStorage.setItem("id_token", idTokenValue);
           window.history.replaceState({}, document.title, "/");
         } else {
-          console.warn("❌ No ID Token available. Redirecting...");
-          setRedirecting(true);
           manualRedirectToCognito();
           return;
         }
       }
 
-      console.log("📦 Final ID Token:", idTokenValue);
-
-      // ✅ ID トークンをデコード
+      // ✅ IDトークンの有効期限を確認
       const payload = parseIdToken(idTokenValue);
       if (!payload) {
-        console.warn("⚠️ ID Token parsing failed. Redirecting...");
-        setRedirecting(true);
+        localStorage.removeItem("id_token");
         manualRedirectToCognito();
         return;
       }
 
-      console.log("✅ User Token Payload:", payload);
-
-      // ✅ 必要な情報を取得
       const userID = payload["custom:UserID"];
       if (!userID) {
-        console.warn("❌ UserID is missing in ID Token! Redirecting...");
         router.push("/unauthorized");
         return;
       }
 
-      // 🔹 userID を localStorage に保存（★ここが追加されたポイント）
       localStorage.setItem("userId", userID);
-
       const groups = payload["cognito:groups"] || [];
-      console.log("✅ User Groups:", groups);
 
       setUserInfo({
         username: payload["cognito:username"],
@@ -113,29 +83,22 @@ export default function App() {
         groups: groups,
       });
 
-      // ✅ CloudFrontごとにリダイレクト先を決定
       const cloudFrontDomain = window.location.origin;
-      let destination = "/unauthorized"; // デフォルトはエラーページ
+      let destination = "/unauthorized";
 
       if (cloudFrontDomain === "https://d1xj20n18wdq9y.cloudfront.net") {
-        console.log("✅ System A is loaded");
         if (groups.includes("Proto-Admin-Group")) {
           destination = "/admin";
         }
       } else if (cloudFrontDomain === "https://d2f1z4tvqap875.cloudfront.net") {
-        console.log("✅ System B is loaded");
-        if (groups.includes("Proto-Admin-Group")) {
-          destination = "/education";
-        } else if (groups.includes("Proto-User-Group")) {
+        if (groups.includes("Proto-Admin-Group") || groups.includes("Proto-User-Group")) {
           destination = "/education";
         }
       }
 
-      console.log("🔀 Redirecting to:", destination);
       router.push(destination);
     } catch (error) {
       console.error("❌ Error fetching user:", error);
-      setRedirecting(true);
       manualRedirectToCognito();
     } finally {
       setLoading(false);
@@ -149,9 +112,8 @@ export default function App() {
   async function handleSignOut() {
     try {
       await signOut();
-      console.log("✅ User signed out successfully.");
       localStorage.removeItem("id_token");
-      localStorage.removeItem("userId"); // 🔹 サインアウト時に userId も削除
+      localStorage.removeItem("userId");
       router.push("/");
     } catch (error) {
       console.error("❌ Sign out failed:", error);
@@ -160,7 +122,7 @@ export default function App() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {loading || redirecting ? (
+      {loading ? (
         <h2>🔄 読み込み中...</h2>
       ) : userInfo ? (
         <>
@@ -168,17 +130,7 @@ export default function App() {
           <p>ユーザー名: {userInfo.username}</p>
           <p>ユーザーID: {userInfo.userID}</p>
           <p>グループ: {userInfo.groups.join(", ")}</p>
-          <button
-            onClick={handleSignOut}
-            style={{
-              margin: "10px",
-              padding: "10px",
-              backgroundColor: "red",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-            }}
-          >
+          <button onClick={handleSignOut} style={{ margin: "10px", padding: "10px", backgroundColor: "red", color: "white", border: "none", borderRadius: "5px" }}>
             サインアウト
           </button>
         </>

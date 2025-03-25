@@ -7,7 +7,7 @@ body {
   }
   
   .employee-list {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     background-color: #fff;
     border-radius: 10px;
