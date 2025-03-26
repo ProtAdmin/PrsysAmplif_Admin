@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Layout from "../components/Layout";
 
-const API_GATEWAY_URL = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/upload";
-const UPDATE_DYNAMODB_URL = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/update-dynamodb-api";
+const API_GATEWAY_URL = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/S3-Upload-SkillSheet";
+const UPDATE_DYNAMODB_URL = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-UpdateSkillSheet";
 
 const UploadToS3_Admin = () => {
   const [file, setFile] = useState<File | null>(null);

@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import Layout from "../../components/Layout";// ✅ Layoutを適用
+import Layout from "../../components/Layout";
 
-const EmployeeEdit = () => {
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  money: string;
+  in: string;
+  out: string;
+  mail: string;
+  status: string;
+  project: string;
+  skillsheet: string;
+  [key: string]: string;
+}
+
+const EmployeeEdit: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const isEditing = !!id;
 
-  interface Employee {
-    id: string;
-    name: string;
-    email: string;
-    money: string;
-    in: string;
-    out: string;
-    mail: string;
-    status: string;
-    project: string;
-    skillsheet: string;
-    [key: string]: string;  // 🔹 インデックスシグネチャを追加
-  }
-  
-  
   const [employee, setEmployee] = useState<Employee>({
     id: '',
     name: '',
@@ -35,96 +34,51 @@ const EmployeeEdit = () => {
     skillsheet: '',
   });
 
-  useEffect(() => {
-    if (isEditing) {
-      fetch(`http://localhost:8080/api/employees/${id}`)
-        .then((res) => res.json())
-        .then((data) => setEmployee(data))
-        .catch((err) => console.error('Error fetching employee:', err));
-    }
-  }, [id, isEditing]);
-
+  // 修正された handleChange 関数
   const handleChange = (key: keyof Employee, value: string) => {
-    setEmployee((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };  
+    setEmployee((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = async () => {
-    const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
-      ? `http://localhost:8080/api/employees/${id}`
-      : 'http://localhost:8080/api/employees';
+      ? `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-Update`
+      : `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-Update`;
 
-    interface EmployeePayload {
-        id: number;
-        name: string;
-        email: string;
-        money: number;
-        in: number;
-        out: number;
-        mail: string;
-        status: string;
-        project: string;
-        skillsheet: string;
-        _id?: number;
-    }
-
-    const payload: EmployeePayload = {
-      ...employee,
-      id: parseInt(employee.id, 10) || 0,
-      money: parseInt(employee.money, 10) || 0,
-      in: parseInt(employee.in, 10) || 0,
-      out: parseInt(employee.out, 10) || 0,
+    const payload = {
+      UserID: employee.id,
+      Project: {
+        BillingRate: employee.money,
+        IN: employee.in,
+        OUT: employee.out,
+        STATUS: employee.status,
+        Vender: employee.project
+      },
+      Retiree: null,
+      UserData: {
+        Age: null,
+        JoiningMonth: null,
+        KeyEmployee: false,
+        SkillSheet: employee.skillsheet
+      },
+      watch: {
+        Dummy01: false, Dummy02: false, Dummy03: false, Dummy04: false,
+        Dummy05: false, Dummy06: false, Dummy07: false, Dummy08: false,
+        Dummy09: false, Dummy10: false
+      }
     };
 
-    // 🔹 MongoDBの自動生成IDを削除（新規作成時のみ）
-    if (!isEditing && payload._id) {
-      delete payload._id;
-    }
-
     const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (response.ok) {
-      alert(isEditing ? '社員情報を更新しました' : '社員を追加しました');
+      alert("社員を追加しました");
       router.push('/employees');
     } else {
-      alert('エラーが発生しました');
+      alert("エラーが発生しました");
     }
-  };
-
-  const handleDelete = async () => {
-    if (!isEditing) return;
-
-    if (confirm('本当に削除しますか？')) {
-      const response = await fetch(`http://localhost:8080/api/employees/${id}`, { method: 'DELETE' });
-
-      if (response.ok) {
-        alert('社員を削除しました');
-        router.push('/employees');
-      } else {
-        alert('削除に失敗しました');
-      }
-    }
-  };
-
-  // 🏷️ ラベル名のマッピング
-  const labels: { [key: string]: string } = {
-    id: '社員ID',
-    name: '氏名',
-    email: 'メールアドレス',
-    money: '単価',
-    in: '参画開始',
-    out: '参画終了',
-    mail: '連絡先',
-    status: 'ステータス',
-    project: '参画先',
-    skillsheet: 'スキルシート',
   };
 
   return (
@@ -134,22 +88,17 @@ const EmployeeEdit = () => {
         <form onSubmit={(e) => e.preventDefault()}>
           {Object.keys(employee).map((key) => (
             <div key={key}>
-              <label>{labels[key] || key}:</label>
+              <label>{key}:</label>
               <input
                 type="text"
                 value={employee[key] as string}
-                onChange={(e) => handleChange(key, e.target.value)}
+                onChange={(e) => handleChange(key as keyof Employee, e.target.value)}
               />
             </div>
           ))}
           <button type="button" onClick={handleSave}>
             {isEditing ? '更新' : '追加'}
           </button>
-          {isEditing && (
-            <button type="button" onClick={handleDelete} style={{ marginLeft: '10px', color: 'red' }}>
-              削除
-            </button>
-          )}
         </form>
       </div>
     </Layout>

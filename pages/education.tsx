@@ -50,7 +50,7 @@ const VideoList = () => {
         const userID = payload["custom:UserID"];
         console.log("🔹 取得した UserID:", userID);
 
-        const apiUrl = `https://t35qg36r0e.execute-api.ap-northeast-1.amazonaws.com/main/prod-Cognito-Users-Create?userID=${userID}`;
+        const apiUrl = `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/Video-Get-Videos?userID=${userID}`;
         console.log("🌍 API URL:", apiUrl);
 
         const res = await fetch(apiUrl);
@@ -93,7 +93,7 @@ const VideoList = () => {
       const userID = payload["custom:UserID"];
       console.log("🔹 Sending request for userID:", userID, "video:", videoTitle);
 
-      const apiUrl = "https://1f0e9vnvac.execute-api.ap-northeast-1.amazonaws.com/main/UpdateWatchHistory"; // 🔹 Lambda の API Gateway URL
+      const apiUrl = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-UpdateWatchHistory"; // 🔹 Lambda の API Gateway URL
 
       const response = await fetch(apiUrl, {
         method: "POST",
