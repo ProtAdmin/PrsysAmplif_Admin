@@ -263,7 +263,7 @@ function EmployeeList() {
                 <td>
                   <button
                     onClick={() =>
-                      router.push(`/employees/edit?id=${employee.UserID}`)
+                      router.push(`/employees/edit_UpDate?id=${employee.UserID}`)
                     }
                   >
                     編集

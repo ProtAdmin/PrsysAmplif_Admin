@@ -1,48 +1,26 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import Layout from "../../components/Layout";
+import Layout from '../../components/Layout';
 
-interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  money: string;
-  in: string;
-  out: string;
-  mail: string;
-  status: string;
-  project: string;
-  skillsheet: string;
-  [key: string]: string;
-}
-
-const EmployeeEdit: React.FC = () => {
+const EmployeeCreate: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
-  const isEditing = !!id;
 
-  const [employee, setEmployee] = useState<Employee>({
+  const [employee, setEmployee] = useState({
     id: '',
-    name: '',
-    email: '',
     money: '',
     in: '',
     out: '',
-    mail: '',
     status: '',
     project: '',
     skillsheet: '',
   });
 
-  // 修正された handleChange 関数
-  const handleChange = (key: keyof Employee, value: string) => {
+  const handleChange = (key: string, value: string) => {
     setEmployee((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = async () => {
-    const url = isEditing
-      ? `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-Update`
-      : `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-Update`;
+    const url = "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-Create";
 
     const payload = {
       UserID: employee.id,
@@ -59,45 +37,93 @@ const EmployeeEdit: React.FC = () => {
         JoiningMonth: null,
         KeyEmployee: false,
         SkillSheet: employee.skillsheet
-      },
-      watch: {
-        Dummy01: false, Dummy02: false, Dummy03: false, Dummy04: false,
-        Dummy05: false, Dummy06: false, Dummy07: false, Dummy08: false,
-        Dummy09: false, Dummy10: false
       }
     };
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (response.ok) {
-      alert("社員を追加しました");
-      router.push('/employees');
-    } else {
-      alert("エラーが発生しました");
+      if (response.ok) {
+        alert("社員を追加しました");
+        router.push('/employees');
+      } else {
+        const errorText = await response.text();
+        console.error("登録エラー:", errorText);
+        alert("エラーが発生しました");
+      }
+    } catch (error) {
+      console.error("通信エラー:", error);
+      alert("通信エラーが発生しました");
     }
   };
 
   return (
     <Layout>
       <div>
-        <h2>{isEditing ? '社員情報を編集' : '新しい社員を追加'}</h2>
+        <h2>新しい社員を追加</h2>
         <form onSubmit={(e) => e.preventDefault()}>
-          {Object.keys(employee).map((key) => (
-            <div key={key}>
-              <label>{key}:</label>
-              <input
-                type="text"
-                value={employee[key] as string}
-                onChange={(e) => handleChange(key as keyof Employee, e.target.value)}
-              />
-            </div>
-          ))}
+          <div>
+            <label>社員ID:</label>
+            <input
+              type="text"
+              value={employee.id}
+              onChange={(e) => handleChange('id', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>単価:</label>
+            <input
+              type="text"
+              value={employee.money}
+              onChange={(e) => handleChange('money', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>参画開始日:</label>
+            <input
+              type="text"
+              value={employee.in}
+              onChange={(e) => handleChange('in', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>参画終了日:</label>
+            <input
+              type="text"
+              value={employee.out}
+              onChange={(e) => handleChange('out', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>ステータス:</label>
+            <input
+              type="text"
+              value={employee.status}
+              onChange={(e) => handleChange('status', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>案件名（Vender）:</label>
+            <input
+              type="text"
+              value={employee.project}
+              onChange={(e) => handleChange('project', e.target.value)}
+            />
+          </div>
+          <div>
+            <label>スキルシートファイル名:</label>
+            <input
+              type="text"
+              value={employee.skillsheet}
+              onChange={(e) => handleChange('skillsheet', e.target.value)}
+            />
+          </div>
           <button type="button" onClick={handleSave}>
-            {isEditing ? '更新' : '追加'}
+            追加
           </button>
         </form>
       </div>
@@ -105,4 +131,4 @@ const EmployeeEdit: React.FC = () => {
   );
 };
 
-export default EmployeeEdit;
+export default EmployeeCreate;

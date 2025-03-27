@@ -1,22 +1,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout_User";
+import Image from "next/image";
 
 type Video = {
   title: string;
   url: string;
   watched: boolean;
   category: string;
+  thumbnail?: string;
 };
 
-// 🔍 ID トークンをデコードする関数
 function parseIdToken(idToken: string) {
   try {
     const parts = idToken.split(".");
-    if (parts.length !== 3) {
-      throw new Error("Invalid ID Token format");
-    }
-    return JSON.parse(atob(parts[1])); // デコード
+    if (parts.length !== 3) throw new Error("Invalid ID Token format");
+    return JSON.parse(atob(parts[1]));
   } catch (error) {
     console.error("❌ Failed to parse ID Token:", error);
     return null;
@@ -26,105 +25,69 @@ function parseIdToken(idToken: string) {
 const VideoList = () => {
   const router = useRouter();
   const [videos, setVideos] = useState<Video[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("全ての動画");
+  const [selectedCategory, setSelectedCategory] = useState("全ての動画");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchUserID = async () => {
       try {
         const idToken = localStorage.getItem("id_token");
-        if (!idToken) {
-          console.warn("⚠️ No ID Token found. Redirecting to unauthorized page...");
-          router.push("/unauthorized");
-          return;
-        }
+        if (!idToken) return router.push("/unauthorized");
 
         const payload = parseIdToken(idToken);
-        if (!payload) {
-          console.warn("⚠️ ID Token parsing failed. Redirecting to unauthorized page...");
-          router.push("/unauthorized");
-          return;
-        }
+        if (!payload) return router.push("/unauthorized");
 
         const userID = payload["custom:UserID"];
-        console.log("🔹 取得した UserID:", userID);
-
         const apiUrl = `https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/Video-Get-Videos?userID=${userID}`;
-        console.log("🌍 API URL:", apiUrl);
 
         const res = await fetch(apiUrl);
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
-        console.log("📦 APIレスポンス:", data);
-
         if (data?.videos && Array.isArray(data.videos)) {
-          const filteredVideos = data.videos.filter(
-            (video: Video) => !video.title.includes("Dummy")
-          );
-          setVideos(filteredVideos);
+          const filtered = data.videos.filter((v: Video) => !v.title.includes("Dummy"));
+          setVideos(filtered);
         }
       } catch (error) {
         console.error("❌ 動画データ取得失敗:", error);
       }
     };
-
     fetchUserID();
   }, [router]);
 
-  // 🔹 ユーザーが動画を視聴完了したら Lambda に送信する関数
   const handleVideoWatched = async (videoTitle: string) => {
     try {
       const idToken = localStorage.getItem("id_token");
-      if (!idToken) {
-        console.warn("⚠️ No ID Token found.");
-        return;
-      }
+      if (!idToken) return;
 
       const payload = parseIdToken(idToken);
-      if (!payload) {
-        console.warn("⚠️ Failed to parse ID Token.");
-        return;
-      }
+      if (!payload) return;
 
       const userID = payload["custom:UserID"];
-      console.log("🔹 Sending request for userID:", userID, "video:", videoTitle);
+      const apiUrl = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-UpdateWatchHistory";
 
-      const apiUrl = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-UpdateWatchHistory"; // 🔹 Lambda の API Gateway URL
-
-      const response = await fetch(apiUrl, {
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userID, videoTitle })
+        body: JSON.stringify({ userID, videoTitle }),
       });
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-      console.log("✅ Video watched flag updated:", videoTitle);
-
-      // 🔹 UI 側でも `watched: true` に更新
-      setVideos((prevVideos) =>
-        prevVideos.map((video) =>
-          video.title === videoTitle ? { ...video, watched: true } : video
-        )
+      setVideos((prev) =>
+        prev.map((v) => (v.title === videoTitle ? { ...v, watched: true } : v))
       );
     } catch (error) {
       console.error("❌ Error updating watched status:", error);
     }
   };
 
-  // 🔹 カテゴリ一覧を取得
-  const categories = Array.from(new Set(videos.map((video) => video.category)));
+  const categories = Array.from(new Set(videos.map((v) => v.category)));
 
-  // 🔹 選択したカテゴリの動画を取得
   const filteredVideos = videos
-    .filter((video) =>
-      selectedCategory === "全ての動画" ? true : video.category === selectedCategory
-    )
-    .filter((video) => video.title.includes(searchTerm));
+    .filter((v) => selectedCategory === "全ての動画" || v.category === selectedCategory)
+    .filter((v) => v.title.includes(searchTerm));
 
   return (
     <Layout>
@@ -138,20 +101,16 @@ const VideoList = () => {
                 setSelectedCategory("全ての動画");
                 setSelectedVideo(null);
               }}
-            >
-              全ての動画
-            </button>
-            {categories.map((category) => (
+            >全ての動画</button>
+            {categories.map((cat) => (
               <button
-                key={category}
-                className={`category-btn ${selectedCategory === category ? "active" : ""}`}
+                key={cat}
+                className={`category-btn ${selectedCategory === cat ? "active" : ""}`}
                 onClick={() => {
-                  setSelectedCategory(category);
+                  setSelectedCategory(cat);
                   setSelectedVideo(null);
                 }}
-              >
-                {category}
-              </button>
+              >{cat}</button>
             ))}
           </div>
         </aside>
@@ -186,13 +145,20 @@ const VideoList = () => {
           <div className="video-list">
             {filteredVideos.length > 0 ? (
               filteredVideos.map((video) => (
-                <button
+                <div
                   key={video.title}
-                  className={`video-btn ${video.watched ? "watched" : ""}`}
+                  className={`video-card ${video.watched ? "watched" : ""}`}
                   onClick={() => setSelectedVideo(video)}
                 >
-                  {video.title}
-                </button>
+                  <Image
+                    src={video.thumbnail || "/placeholder.jpg"}
+                    alt={video.title}
+                    width={160}
+                    height={90}
+                    className="video-thumbnail"
+                  />
+                  <div className="video-title">{video.title.replace(".mp4", "")}</div>
+                </div>
               ))
             ) : (
               <p className="no-videos">動画が見つかりません</p>
@@ -283,6 +249,47 @@ const VideoList = () => {
           grid-template-columns: 220px 2fr 3fr;
           gap: 20px;
           padding: 20px;
+        }
+        .video-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+          border: 2px solid #007bff;
+          padding: 8px;
+          border-radius: 10px;
+          background: white;
+          transition: transform 0.2s;
+        }
+        .video-card:hover {
+          transform: scale(1.03);
+          background: #e6f0ff;
+        }
+        .video-card.watched {
+          opacity: 0.6;
+        }
+        .video-thumbnail {
+          width: 160px;
+          height: 90px;
+          object-fit: cover;
+          border-radius: 6px;
+          margin-bottom: 6px;
+        }
+        .video-title {
+          font-size: 14px;
+          font-weight: 500;
+          text-align: center;
+          color: #333;
+        }
+        .video-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          gap: 16px;
+          padding: 10px;
+          max-height: 70vh;
+          overflow-y: auto;
+          background: #f9f9f9;
+          border-radius: 8px;
         }
         .category-sidebar { background: #f8f9fa; padding: 20px; }
         .category-btn { border: 2px solid #007bff; color: #007bff; }
