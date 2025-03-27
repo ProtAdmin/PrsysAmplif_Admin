@@ -32,7 +32,7 @@ const getYearsOfServiceCategory = (joiningMonth: string): string => {
 
 function ResignationAnalysis() {
   const [employees, setEmployees] = useState<DynamoDBEmployee[]>([]);
-  const API_ENDPOINT = "https://mu12g4o3v1.execute-api.ap-northeast-1.amazonaws.com/prod-DynamoDB-Users-GetALL";
+  const API_ENDPOINT = "https://9dt3skcirl.execute-api.ap-northeast-1.amazonaws.com/DynamoDB-User-Get";
   const TABLE_NAME = "Proto_User_Profiles";
 
   useEffect(() => {
