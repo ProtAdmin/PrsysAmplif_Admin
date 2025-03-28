@@ -250,7 +250,7 @@ function EmployeeList() {
                 <td>
                   {employee.SkillSheet ? (
                     <a
-                    href={`https://d1xj20n18wdq9y.cloudfront.net/employee/${encodeURIComponent(employee.SkillSheet)}`}
+                    href={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent('https://d1xj20n18wdq9y.cloudfront.net/employee/' + employee.SkillSheet)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

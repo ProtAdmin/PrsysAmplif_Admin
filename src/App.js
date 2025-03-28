@@ -1,41 +1,34 @@
 import awsExports from "./aws-exports";
 import { Amplify } from "aws-amplify";
-import { signOut } from "aws-amplify/auth";
+import { fetchAuthSession, signOut } from "@aws-amplify/auth"; // ✅ Amplify v6対応
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 
 Amplify.configure({ ...awsExports, ssr: true });
 
-// ✅ Cognito に手動リダイレクトする関数
+// ✅ 手動ログイン
 function manualRedirectToCognito() {
   const cloudFrontDomain = window.location.origin;
   const cognitoLoginUrl =
-    "https://ap-northeast-1h2ira36fy.auth.ap-northeast-1.amazoncognito.com/login"
-    + "?client_id=128mcrh4ftsd1onp7q9vomaolp"
-    + "&response_type=token"
-    + "&scope=openid+profile+email"
-    + `&redirect_uri=${encodeURIComponent(cloudFrontDomain)}`;
+    "https://ap-northeast-1h2ira36fy.auth.ap-northeast-1.amazoncognito.com/login" +
+    "?client_id=128mcrh4ftsd1onp7q9vomaolp" +
+    "&response_type=token" +
+    "&scope=openid+profile+email" +
+    `&redirect_uri=${encodeURIComponent(cloudFrontDomain)}`;
 
   window.location.href = cognitoLoginUrl;
 }
 
-// ✅ IDトークンを解析し、有効期限をチェックする関数
-function parseIdToken(idToken) {
+// ✅ トークンの期限チェック
+function isTokenExpired(token) {
   try {
-    const parts = idToken.split(".");
-    if (parts.length !== 3) {
-      throw new Error("Invalid ID Token format");
-    }
-    const decoded = JSON.parse(atob(parts[1]));
+    const [, payload] = token.split(".");
+    const decoded = JSON.parse(atob(payload));
     const currentTime = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < currentTime) {
-      console.warn("⚠️ ID Token expired. Re-authenticating...");
-      return null;
-    }
-    return decoded;
-  } catch (error) {
-    console.error("❌ Failed to parse ID Token:", error);
-    return null;
+    return decoded.exp && decoded.exp < currentTime;
+  } catch (e) {
+    console.error("❌ トークンパース失敗:", e);
+    return true;
   }
 }
 
@@ -46,13 +39,14 @@ export default function App() {
 
   const fetchUserInfo = useCallback(async () => {
     try {
-      let idTokenValue = localStorage.getItem("id_token");
+      let idToken = localStorage.getItem("id_token");
 
-      if (!idTokenValue) {
+      if (!idToken) {
+        // URLから取得
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        idTokenValue = hashParams.get("id_token");
-        if (idTokenValue) {
-          localStorage.setItem("id_token", idTokenValue);
+        idToken = hashParams.get("id_token");
+        if (idToken) {
+          localStorage.setItem("id_token", idToken);
           window.history.replaceState({}, document.title, "/");
         } else {
           manualRedirectToCognito();
@@ -60,29 +54,47 @@ export default function App() {
         }
       }
 
-      // ✅ IDトークンの有効期限を確認
-      const payload = parseIdToken(idTokenValue);
-      if (!payload) {
-        localStorage.removeItem("id_token");
-        manualRedirectToCognito();
-        return;
+      // ✅ トークンの有効期限が切れていたら、リフレッシュ試行
+      if (isTokenExpired(idToken)) {
+        console.warn("⚠️ IDトークンの期限切れ。リフレッシュ試行中...");
+        try {
+          const session = await fetchAuthSession(); // 🔄 トークン自動リフレッシュ
+          const refreshedToken = session.tokens?.idToken?.toString();
+
+          if (!refreshedToken) {
+            throw new Error("トークンリフレッシュ失敗");
+          }
+
+          idToken = refreshedToken;
+          localStorage.setItem("id_token", idToken);
+          console.log("🔄 トークンリフレッシュ成功");
+        } catch (refreshError) {
+          console.error("❌ トークンリフレッシュ失敗:", refreshError);
+          localStorage.removeItem("id_token");
+          manualRedirectToCognito();
+          return;
+        }
       }
 
-      const userID = payload["custom:UserID"];
+      const [, payload] = idToken.split(".");
+      const decoded = JSON.parse(atob(payload));
+
+      const userID = decoded["custom:UserID"];
       if (!userID) {
         router.push("/unauthorized");
         return;
       }
 
       localStorage.setItem("userId", userID);
-      const groups = payload["cognito:groups"] || [];
+      const groups = decoded["cognito:groups"] || [];
 
       setUserInfo({
-        username: payload["cognito:username"],
-        userID: userID,
-        groups: groups,
+        username: decoded["cognito:username"],
+        userID,
+        groups,
       });
 
+      // ✅ リダイレクトルール
       const cloudFrontDomain = window.location.origin;
       let destination = "/unauthorized";
 
@@ -91,14 +103,17 @@ export default function App() {
           destination = "/admin";
         }
       } else if (cloudFrontDomain === "https://d2f1z4tvqap875.cloudfront.net") {
-        if (groups.includes("Proto-Admin-Group") || groups.includes("Proto-User-Group")) {
+        if (
+          groups.includes("Proto-Admin-Group") ||
+          groups.includes("Proto-User-Group")
+        ) {
           destination = "/education";
         }
       }
 
       router.push(destination);
     } catch (error) {
-      console.error("❌ Error fetching user:", error);
+      console.error("❌ ユーザー情報の取得エラー:", error);
       manualRedirectToCognito();
     } finally {
       setLoading(false);
@@ -116,7 +131,7 @@ export default function App() {
       localStorage.removeItem("userId");
       router.push("/");
     } catch (error) {
-      console.error("❌ Sign out failed:", error);
+      console.error("❌ サインアウト失敗:", error);
     }
   }
 
@@ -130,7 +145,17 @@ export default function App() {
           <p>ユーザー名: {userInfo.username}</p>
           <p>ユーザーID: {userInfo.userID}</p>
           <p>グループ: {userInfo.groups.join(", ")}</p>
-          <button onClick={handleSignOut} style={{ margin: "10px", padding: "10px", backgroundColor: "red", color: "white", border: "none", borderRadius: "5px" }}>
+          <button
+            onClick={handleSignOut}
+            style={{
+              margin: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
             サインアウト
           </button>
         </>
