@@ -171,12 +171,32 @@ const VideoList = () => {
       <style jsx>{`
         .education-container {
           display: grid;
-          grid-template-columns: 220px 2fr 3fr;
+          grid-template-columns: 220px 5fr 2fr;
           gap: 20px;
           padding: 20px;
           height: 90vh;
-          max-width: 1400px;
+          max-width: 2000px;
           margin: auto;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        @media (max-width: 1024px) {
+          .education-container {
+            grid-template-columns: 220px 3fr 2fr; /* バランスを縮小 */
+          }
+        }
+
+        @media (max-width: 768px) {
+          .education-container {
+            grid-template-columns: 1fr; /* スマホ表示は縦一列 */
+            grid-template-rows: auto auto auto;
+          }
+
+          .category-sidebar,
+          .video-display,
+          .main-content {
+            width: 100%;
+          }
         }
         .category-sidebar {
           background: #f8f9fa;
@@ -215,6 +235,8 @@ const VideoList = () => {
           padding: 15px;
           border-radius: 12px;
           min-height: 300px;
+          min-width: 300px;
+          aspect-ratio: 16 / 9;
         }
         .video-list {
         display: flex;
@@ -243,12 +265,6 @@ const VideoList = () => {
         .video-btn.active {
           background: #007bff;
           color: white;
-        }
-        .education-container {
-          display: grid;
-          grid-template-columns: 220px 2fr 3fr;
-          gap: 20px;
-          padding: 20px;
         }
         .video-card {
           display: flex;
