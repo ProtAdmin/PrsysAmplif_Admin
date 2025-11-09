@@ -21,7 +21,9 @@ export default function Layout({ children }: LayoutProps) {
     { path: "/employees", icon: faUsers, label: "社員一覧" },
     { path: "/employees/edit", icon: faUser, label: "人員処理" },
     { path: "/retiree", icon: faAddressCard, label: "退職者分析" },
-    { path: "/UploadToS3_Admin", icon: faAddressCard, label: "スキルシートUL" }
+    { path: "/UploadToS3_Admin", icon: faAddressCard, label: "スキルシートUL" },
+    { path: "https://d1ncz7o76yr13b.cloudfront.net/seniors/index.html", icon: faAddressCard, label: "社内チャット", external: true },
+    { path: "/VideoUpdateAdmin/index.html", icon: faAddressCard, label: "動画アップロード" }
   ];
 
   return (
