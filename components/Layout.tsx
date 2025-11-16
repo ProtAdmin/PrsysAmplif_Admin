@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 // import "../styles/Layout.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faUser, faPencilAlt, faBars  ,faAngleDoubleLeft ,faAddressCard} from "@fortawesome/free-solid-svg-icons";
+import { faUser, faPencilAlt, faBars  ,faAngleDoubleLeft ,faAddressCard} from "@fortawesome/free-solid-svg-icons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,11 +18,11 @@ export default function Layout({ children }: LayoutProps) {
   // メニュー項目データ
   const menuItems = [
     { path: "/admin", icon: faPencilAlt, label: "HOME" },
-    { path: "/employees", icon: faUsers, label: "社員一覧" },
-    { path: "/employees/edit", icon: faUser, label: "人員処理" },
-    { path: "/retiree", icon: faAddressCard, label: "退職者分析" },
-    { path: "/UploadToS3_Admin", icon: faAddressCard, label: "スキルシートUL" },
-    { path: "https://d1ncz7o76yr13b.cloudfront.net/seniors/index.html", icon: faAddressCard, label: "社内チャット", external: true },
+    // { path: "/employees", icon: faUsers, label: "社員一覧" },
+    { path: "/CognitoCreate", icon: faUser, label: "人員処理" },
+    // { path: "/retiree", icon: faAddressCard, label: "退職者分析" },
+    // { path: "/UploadToS3_Admin", icon: faAddressCard, label: "スキルシートUL" },
+    { path: "https://d1ncz7o76yr13b.cloudfront.net/seniorandjunior", icon: faAddressCard, label: "社内チャット", external: true },
     { path: "/VideoUpdateAdmin/index.html", icon: faAddressCard, label: "動画アップロード" }
   ];
 
