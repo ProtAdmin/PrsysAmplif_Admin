@@ -101,6 +101,10 @@ export default function App() {
       if (cloudFrontDomain === "https://d1xj20n18wdq9y.cloudfront.net") {
         if (groups.includes("Proto-Admin-Group")) {
           destination = "/admin";
+        } else if (groups.includes("Proto-Junior-Group")){
+          destination = "/Junior";
+        } else if (groups.includes("Proto-Senior-Group")){
+          destination = "/Senior";
         }
       } else if (cloudFrontDomain === "https://d2f1z4tvqap875.cloudfront.net") {
         if (

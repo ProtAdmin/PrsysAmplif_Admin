@@ -17,18 +17,21 @@ export default function Layout({ children }: LayoutProps) {
 
   // メニュー項目データ
   const menuItems = [
-    { path: "/admin", icon: faPencilAlt, label: "HOME" },
-    // { path: "/employees", icon: faUsers, label: "社員一覧" },
-    { path: "/CognitoCreate", icon: faUser, label: "人員処理" },
-    // { path: "/retiree", icon: faAddressCard, label: "退職者分析" },
-    // { path: "/UploadToS3_Admin", icon: faAddressCard, label: "スキルシートUL" },
+    { path: "/Junior", icon: faPencilAlt, label: "HOME" },
     {
       path: "https://d1ncz7o76yr13b.cloudfront.net/seniorandjunior",
       icon: faAddressCard,
-      label: "社内チャット",
+      label: "シニア/ジュニア間 社内チャット",
       external: true,
     },
-    { path: "/VideoUpdateAdmin/index.html", icon: faAddressCard, label: "動画アップロード" }
+    {
+      path: "https://d1ncz7o76yr13b.cloudfront.net/seniors",
+      icon: faAddressCard,
+      label: "ジュニアマネージャー社内チャット",
+      external: true,
+    },
+    { path: "/VideoUpdateAdmin/index.html", icon: faAddressCard, label: "動画アップロード" },
+    { path: "/CognitoCreate", icon: faUser, label: "人員処理" },
   ];
 
   return (
@@ -39,7 +42,7 @@ export default function Layout({ children }: LayoutProps) {
       <div className="content">
         {/* サイドバー */}
         <nav className={`sidebar ${isSidebarOpen ? "open" : "hidden"}`}>
-          <ul className="menu">
+        <ul className="menu">
             {menuItems.map((item) => (
               <li key={item.path}>
                 {item.external ? (

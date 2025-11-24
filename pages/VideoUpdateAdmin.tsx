@@ -92,7 +92,6 @@ export default function VideoUploadAdmin() {
     if (!initResp.ok) throw new Error(`INIT API 失敗 (${fileName})`);
     const { presignedUrl, key } = (await initResp.json()) as InitResponse;
 
-    // fetch での正確なプログレスは難しいので xhr を併用
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("PUT", presignedUrl);
@@ -169,14 +168,15 @@ export default function VideoUploadAdmin() {
 
   return (
     <Layout>
+      {/* ヘッダー帯 */}
       <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white rounded-xl p-6 shadow-lg mb-6">
         <h1 className="text-2xl md:text-3xl font-bold">動画アップロード（管理）</h1>
-        <p className="opacity-90 mt-1">
-          MP4 と任意の JPG をアップロード。必要なら即時取り込みで S3→移動 &amp; DynamoDB 登録。
+        <p className="mt-1 text-sm md:text-base text-white/95">
+          MP4 と任意の JPG をアップロード。
         </p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 text-gray-800">
         {/* 左：アップロードゾーン */}
         <section className="xl:col-span-2 space-y-6">
           <div
@@ -185,8 +185,8 @@ export default function VideoUploadAdmin() {
             onDragOver={onDragOver}
             className="rounded-xl border border-dashed border-slate-300 bg-white shadow-sm hover:shadow-md transition p-6"
           >
-            <h2 className="text-lg font-semibold">動画ファイル（.mp4）</h2>
-            <p className="text-sm text-slate-500 mb-3">
+            <h2 className="text-lg font-semibold text-gray-900">動画ファイル（.mp4）</h2>
+            <p className="text-sm text-gray-700 mb-3">
               ドラッグ＆ドロップまたは下のボタンから選択（最大 1GB / MP4 のみ）
             </p>
             <label className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md cursor-pointer">
@@ -203,10 +203,16 @@ export default function VideoUploadAdmin() {
               <div className="mt-4 rounded-lg border bg-slate-50 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium">{videoFile.name}</div>
-                    <div className="text-xs text-slate-500">{humanMB(videoFile.size)} MB</div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {videoFile.name}
+                    </div>
+                    <div className="text-xs text-gray-700">
+                      {humanMB(videoFile.size)} MB
+                    </div>
                   </div>
-                  <span className="text-xs rounded-full px-2 py-1 bg-slate-200">.mp4</span>
+                  <span className="text-xs rounded-full px-2 py-1 bg-slate-200 text-gray-800">
+                    .mp4
+                  </span>
                 </div>
                 {uploading && (
                   <div className="mt-3">
@@ -216,7 +222,7 @@ export default function VideoUploadAdmin() {
                         style={{ width: `${progressVideo}%` }}
                       />
                     </div>
-                    <div className="text-xs text-slate-600 mt-1">
+                    <div className="text-xs text-gray-800 mt-1">
                       アップロード中… {progressVideo}%
                     </div>
                   </div>
@@ -227,8 +233,8 @@ export default function VideoUploadAdmin() {
 
           {/* サムネイル */}
           <div className="rounded-xl border bg-white shadow-sm hover:shadow-md transition p-6">
-            <h2 className="text-lg font-semibold">サムネイル（.jpg / 任意）</h2>
-            <p className="text-sm text-slate-500 mb-3">
+            <h2 className="text-lg font-semibold text-gray-900">サムネイル（.jpg / 任意）</h2>
+            <p className="text-sm text-gray-800 mb-3">
               保存名は自動で <code className="font-mono">{keyBase}.jpg</code> になります。
             </p>
             <div className="flex items-center gap-3">
@@ -242,7 +248,7 @@ export default function VideoUploadAdmin() {
                 />
               </label>
               {thumbFile && (
-                <span className="text-xs text-slate-600">
+                <span className="text-xs text-gray-800">
                   {thumbFile.name} / {humanMB(thumbFile.size)} MB
                 </span>
               )}
@@ -265,7 +271,7 @@ export default function VideoUploadAdmin() {
                         style={{ width: `${progressThumb}%` }}
                       />
                     </div>
-                    <div className="text-xs text-slate-600 mt-1">
+                    <div className="text-xs text-gray-800 mt-1">
                       サムネイル送信… {progressThumb}%
                     </div>
                   </div>
@@ -278,10 +284,11 @@ export default function VideoUploadAdmin() {
         {/* 右：詳細入力 */}
         <aside className="space-y-6">
           <div className="rounded-xl border bg-white shadow-sm hover:shadow-md transition p-6">
-            <h3 className="text-base font-semibold mb-4">動画の詳細</h3>
-            <label className="block text-sm font-medium mb-1">タイトル</label>
+            <h3 className="text-base font-semibold mb-4 text-gray-900">動画の詳細</h3>
+
+            <label className="block text-sm font-medium mb-1 text-gray-900">タイトル</label>
             <input
-              className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm text-gray-900"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="M1-メール誤送信"
@@ -289,9 +296,11 @@ export default function VideoUploadAdmin() {
 
             <div className="grid grid-cols-1 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium mb-1">カテゴリ</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900">
+                  カテゴリ
+                </label>
                 <select
-                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm text-gray-900"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -302,9 +311,11 @@ export default function VideoUploadAdmin() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">視聴可能ユーザー</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900">
+                  視聴可能ユーザー
+                </label>
                 <input
-                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm text-gray-900"
                   value={allowUsers}
                   onChange={(e) => setAllowUsers(e.target.value)}
                   placeholder="* もしくは 3217,3218"
@@ -312,9 +323,11 @@ export default function VideoUploadAdmin() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">タグ（カンマ区切り）</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900">
+                  タグ（カンマ区切り）
+                </label>
                 <input
-                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm text-gray-900"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                   placeholder="必修, セキュリティ"
@@ -322,7 +335,7 @@ export default function VideoUploadAdmin() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">必修</label>
+                <label className="text-sm font-medium text-gray-900">必修</label>
                 <input
                   type="checkbox"
                   className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
@@ -332,9 +345,11 @@ export default function VideoUploadAdmin() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">公開日時（任意）</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900">
+                  公開日時（任意）
+                </label>
                 <input
-                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                  className="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm text-gray-900"
                   value={publishAt}
                   onChange={(e) => setPublishAt(e.target.value)}
                   placeholder="2025-11-06T09:00:00+09:00"
@@ -344,11 +359,15 @@ export default function VideoUploadAdmin() {
           </div>
 
           <div className="rounded-xl border bg-white shadow-sm hover:shadow-md transition p-6">
-            <h3 className="text-base font-semibold mb-4">取り込みオプション</h3>
+            <h3 className="text-base font-semibold mb-4 text-gray-900">取り込みオプション</h3>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">アップロード後に即時取り込み</div>
-                <div className="text-xs text-slate-500">S3移動 &amp; DynamoDB 追加をすぐ実行します</div>
+                <div className="text-sm font-medium text-gray-900">
+                  アップロード後に即時取り込み
+                </div>
+                <div className="text-xs text-gray-700">
+                  S3移動 &amp; DynamoDB 追加をすぐ実行します
+                </div>
               </div>
               <input
                 type="checkbox"
@@ -357,8 +376,9 @@ export default function VideoUploadAdmin() {
                 onChange={(e) => setWantImmediateIngest(e.target.checked)}
               />
             </div>
-            <div className="mt-4 text-xs text-slate-500">
-              S3格納キー（想定ベース名）： <code className="font-mono">{keyBase}</code>
+            <div className="mt-4 text-xs text-gray-700">
+              S3格納キー（想定ベース名）：{" "}
+              <code className="font-mono">{keyBase}</code>
             </div>
           </div>
 
